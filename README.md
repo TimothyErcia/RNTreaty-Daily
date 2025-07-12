@@ -1,50 +1,64 @@
-# Welcome to your Expo app 👋
+# Treaty-DailyTask
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+I program everyday until i finish the project
 
-## Get started
+## What to build
 
-1. Install dependencies
+### Problem
 
-   ```bash
-   npm install
-   ```
+When tracking money spending on certain categories user needs to input amount and description manually via notes and after collectively inserting all the amount and description at the end of the week user summarizes all the spending in a google sheet document wherein it computes the total spent plus the predicitve saving for the current month.
 
-2. Start the app
+### Solution
 
-   ```bash
-   npx expo start
-   ```
+Build a mobile application that supports Android and iOS which collects all the inputs of the amount and description/category of the user and automatically summarize all the spending and savings predicition for the current month.
 
-In the output, you'll find options to open the app in a
+## Where to build
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Platforms
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+-   **Android** (Android Studio)<sup>Kotlin</sup>
+-   **iOS** (XCode)<sup>Swift</sup>
+-   **Web** _future projects most likely a cross-platform build_
 
-## Get a fresh project
+### API Service & Database
 
-When you're ready, run:
+-   MongoDB Realm
+-   Google Sheets API (_Needs more R&D_)
 
-```bash
-npm run reset-project
-```
+## System Architecture _HIGH LEVEL DESIGN_
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+-   Can do CRUD operation on category **price**, **description**
+-   Separated by Category UID
+-   Debounce offline save _background thread_
+-   Sync Save operation _background service task_
+-   Sync Retrieve operation _can be triggered manually or via app launch_
+-   Local Push Notification on not completed task **time based operation**
 
-## Learn more
+## Planning & System Design
 
-To learn more about developing your project with Expo, look at the following resources:
+1. Story planning
+    1. Features
+        - Create Task
+        - Retrieve Task
+        - Update Task
+        - Delete Task
+        - Complete Task
+        - Debounce save operation _cache strategy_
+        - Local Push Notification _time base reminder_
+        - Sync Save _Service API_
+        - Sync Retrieve _Service API_
+    2. Edge cases (Error handling)
+        - _INSERT DIAGRAM_
+2. Development Architecture (Code) Base design
+    1. Koin Dependency
+    2. Realm Dependency
+    3. Local Notification Dependency
+    4. Testing Library Dependency
+3. Layout & Design
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+App Eraser (HIGH LEVEL DESIGN) https://app.eraser.io/workspace/1kydQuEFbIxhYKqdvoqB
 
-## Join the community
+Figma Design (LAYOUT)
+https://www.figma.com/design/OFVeJ0ssLEdo2cbSf9ZGk3/Treaty-Daily-Design
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+4. CI/CD Deployment Status
