@@ -7,13 +7,18 @@ import { useFonts } from "expo-font";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
+import CreateTask from "@/components/CreateTask";
+import Bottom from "@/components/ui/Bottom";
+import TaskGroup from "@/components/ui/TaskGroup";
+import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { Drawer } from "expo-router/drawer";
-import { StyleSheet } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import TaskList from "./TaskList";
+import React, { useState } from "react";
+import { SafeAreaView } from "react-native";
 
 export default function RootLayout() {
+    const [isModalShown, setIsModalShown] = useState(false);
+    const [isCategorySelected, setIsCategorySelected] = useState(false);
+
     const colorScheme = useColorScheme();
     const [loaded] = useFonts({
         inter: require("../assets/fonts/inter.ttf"),
@@ -26,17 +31,62 @@ export default function RootLayout() {
         return null;
     }
 
+    function onDeleteTaskPress() {
+        console.log("onDelete Pressed");
+    }
+
+    function onAddPricePress() {
+        onModalState(true);
+    }
+
+    function onAddTaskGroupPress() {
+        onModalState(false);
+    }
+
+    function onModalState(isCategory: boolean) {
+        setIsModalShown(true);
+        setIsCategorySelected(isCategory);
+    }
+
     return (
         <ThemeProvider
             value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
         >
             <StatusBar style="auto" />
-            <GestureHandlerRootView style={{ flex: 1 }}>
+            <SafeAreaView
+                style={{
+                    flex: 1,
+                    backgroundColor: Colors.light.background,
+                }}
+            >
+                {/* <TaskList /> */}
+                <TaskGroup
+                    category={"Food"}
+                    totalPrice={"12,345"}
+                    lastUpdateDate={""}
+                    lastPrice={"500"}
+                    onDeleteTask={onDeleteTaskPress}
+                    onAddPrice={onAddPricePress}
+                />
+                <Bottom
+                    totalPrice={"0.00"}
+                    onAddTaskGroup={onAddTaskGroupPress}
+                />
+                {/* <RealmProvider schema={[Task]}>
+                    
+                </RealmProvider> */}
+                <CreateTask
+                    isCategory={isCategorySelected}
+                    isVisible={isModalShown}
+                    onDismiss={() => {
+                        setIsModalShown(false);
+                        setIsCategorySelected(false);
+                    }}
+                />
+            </SafeAreaView>
+            {/* <GestureHandlerRootView style={{ flex: 1 }}>
                 <Drawer />
-            </GestureHandlerRootView>
-            <TaskList />
+            </GestureHandlerRootView> */}
         </ThemeProvider>
     );
 }
-
-const styles = StyleSheet.create({});

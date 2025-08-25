@@ -17,4 +17,8 @@ export const Colors = {
         homeCategory: "#FFB663",
         icon: "#9BA1A6", // TODO - to change
     },
+    bottom: {
+        background: "#323232",
+        opacity: 0.8,
+    },
 };

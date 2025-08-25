@@ -1,6 +1,18 @@
-export const CATEGORIES = {
-    FOOD: "Food",
-    TRANSPORTATION: "Transportation",
-    HOME: "Home",
-    PERSONAL: "Personal",
-};
+export const CATEGORIES = [
+    {
+        label: "Food",
+        value: "Food",
+    },
+    {
+        label: "Transportation",
+        value: "Transportation",
+    },
+    {
+        label: "Home",
+        value: "Home",
+    },
+    {
+        label: "Personal",
+        value: "Personal",
+    },
+];
