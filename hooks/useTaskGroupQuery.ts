@@ -1,21 +1,27 @@
-import { Task } from "@/model/Task";
-import { TaskGroup } from "@/model/TaskGroup";
+import { TaskGroupObject } from "@/model/TaskGroupObject";
+import { TaskObject } from "@/model/TaskObject";
 import { useQuery, useRealm } from "@realm/react";
 
-function useTaskGroupQuery() {
+export type ITaskGroupQuery = {
+    writeTaskGroup: (category: string, totalPrice: number, backgroundColor: string, taskList: TaskObject[]) => void;
+    deleteTaskGroup: (taskgroup: TaskGroupObject) => void;
+    getTaskGroup: () => Realm.Results<TaskGroupObject>;
+};
+
+function useTaskGroupQuery(): ITaskGroupQuery {
     const realm = useRealm();
-    const taskgroup = useQuery(TaskGroup);
+    const taskgroup = useQuery(TaskGroupObject);
 
     function writeTaskGroup(
         category: string,
-        totalPrice: Number,
+        totalPrice: number,
         backgroundColor: string,
-        taskList: Task[]
+        taskList: TaskObject[]
     ) {
         realm.write(() => {
             realm.create(
-                "TaskGroup",
-                TaskGroup.generate(
+                "TaskGroupObject",
+                TaskGroupObject.generate(
                     category,
                     totalPrice,
                     backgroundColor,
@@ -25,15 +31,21 @@ function useTaskGroupQuery() {
         });
     }
 
-    function deleteTaskGroup(taskgroup: TaskGroup) {
+    function deleteTaskGroup(taskgroup: TaskGroupObject) {
         realm.write(() => {
             realm.delete(taskgroup);
         });
     }
 
-    function getTaskGroup() {
+    function getTaskGroup(): Realm.Results<TaskGroupObject> {
         return taskgroup;
     }
+
+    return {
+        writeTaskGroup,
+        deleteTaskGroup,
+        getTaskGroup,
+    };
 }
 
 export default useTaskGroupQuery;

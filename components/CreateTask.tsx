@@ -1,5 +1,6 @@
 import { CATEGORIES } from "@/constants/Categories";
 import { Colors } from "@/constants/Colors";
+import useTaskGroupQuery, { ITaskGroupQuery } from "@/hooks/useTaskGroupQuery";
 import useTaskQuery, { ITaskQuery } from "@/hooks/useTaskQuery";
 import React, { useState } from "react";
 import {
@@ -18,13 +19,19 @@ function CreateTask(props: CreateTaskProp) {
     const [finalValue, setFinalValue] = useState(0);
     const [inputValue, setInputValue] = useState("");
     const [open, setOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState("");
     const [categories, setCategories] = useState(CATEGORIES);
 
     const realmTask: ITaskQuery = useTaskQuery();
+    const realmTaskGroup: ITaskGroupQuery = useTaskGroupQuery();
+
 
     function onAdd() {
-        realmTask.writeTask(finalValue);
+        const value = finalValue > 0 ? finalValue : Number(inputValue);
+        realmTask.writeTaskObject(value);
+
+        const totalPrice = realmTask.getTaskObject().sum('price');
+        // realmTaskGroup.writeTaskGroup(selectedCategory, totalPrice, CATEGORIES[0].color, );
         onDismiss();
     }
 
@@ -45,6 +52,7 @@ function CreateTask(props: CreateTaskProp) {
 
     function onDismiss() {
         setFinalValue(0);
+        setInputValue("");
         props.onDismiss();
     }
 

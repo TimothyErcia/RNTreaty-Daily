@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import React from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { BottomProps } from "../props/BottomProps";
 
 function Bottom(props: BottomProps) {
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         opacity: Colors.bottom.opacity,
         borderRadius: 32,
         height: 64,
-        width: 300,
+        width: Dimensions.get('screen').width - 100,
         paddingHorizontal: 28,
         marginHorizontal: 45,
         position: "absolute",

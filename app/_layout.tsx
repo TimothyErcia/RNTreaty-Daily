@@ -12,6 +12,9 @@ import Bottom from "@/components/ui/Bottom";
 import TaskGroup from "@/components/ui/TaskGroup";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { TaskGroupObject } from "@/model/TaskGroupObject";
+import { TaskObject } from "@/model/TaskObject";
+import { RealmProvider } from "@realm/react";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native";
 
@@ -72,17 +75,16 @@ export default function RootLayout() {
                     totalPrice={"0.00"}
                     onAddTaskGroup={onAddTaskGroupPress}
                 />
-                {/* <RealmProvider schema={[Task]}>
-                    
-                </RealmProvider> */}
-                <CreateTask
-                    isCategory={isCategorySelected}
-                    isVisible={isModalShown}
-                    onDismiss={() => {
-                        setIsModalShown(false);
-                        setIsCategorySelected(false);
-                    }}
-                />
+                <RealmProvider schema={[TaskGroupObject, TaskObject]}>
+                    <CreateTask
+                        isCategory={isCategorySelected}
+                        isVisible={isModalShown}
+                        onDismiss={() => {
+                            setIsModalShown(false);
+                            setIsCategorySelected(false);
+                        }}
+                    />
+                </RealmProvider>
             </SafeAreaView>
             {/* <GestureHandlerRootView style={{ flex: 1 }}>
                 <Drawer />
