@@ -50,7 +50,7 @@ Build a mobile application that supports Android and iOS which collects all the 
     2. Edge cases (Error handling)
         - _INSERT DIAGRAM_
 2. Development Architecture (Code) Base design
-    1. Koin Dependency
+    1. Redux Dependency
     2. Realm Dependency
     3. Local Notification Dependency
     4. Testing Library Dependency
