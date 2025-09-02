@@ -1,15 +1,30 @@
 import { Realm } from '@realm/react';
 
-export class TaskObject extends Realm.Object {
-    _id!: Realm.BSON.ObjectId;
-    price!: number;
-    dateAdded!: Date;
+export type Task = {
+    _id: string;
+    price: number;
+    category: string
+    dateAdded: Date;
+    lastPrice: number;
+    backgroundColor: string;
+}
 
-    static generate(price: number) {
+export class TaskObject extends Realm.Object {
+    _id!: string;
+    price!: number;
+    category!: string;
+    dateAdded!: Date;
+    lastPrice!: number
+    backgroundColor!: string;
+
+    static generate(task: Omit<Task, '_id'>) {
         return {
             _id: new Realm.BSON.ObjectId(),
-            price,
-            dateAdded: new Date(),
+            price: task.price,
+            category: task.category,
+            dateAdded: task.dateAdded,
+            lastPrice: task.lastPrice,
+            backgroundColor: task.backgroundColor
         };
     }
 
@@ -19,7 +34,10 @@ export class TaskObject extends Realm.Object {
         properties: {
             _id: 'objectId',
             price: 'int',
+            category: 'string',
             dateAdded: 'date',
+            lastPrice: 'int',
+            backgroundColor: 'string'
         },
     };
 }

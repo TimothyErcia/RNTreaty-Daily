@@ -1,5 +1,5 @@
 export type CreateTaskProp = {
-    isCategory: boolean;
+    selectedCategory: string;
     isVisible: boolean;
     onDismiss: () => void;
 };

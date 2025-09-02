@@ -1,8 +1,7 @@
 import { CATEGORIES } from "@/constants/Categories";
 import { Colors } from "@/constants/Colors";
-import useTaskGroupQuery, { ITaskGroupQuery } from "@/hooks/useTaskGroupQuery";
 import useTaskQuery, { ITaskQuery } from "@/hooks/useTaskQuery";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
     Image,
     Modal,
@@ -23,17 +22,45 @@ function CreateTask(props: CreateTaskProp) {
     const [categories, setCategories] = useState(CATEGORIES);
 
     const realmTask: ITaskQuery = useTaskQuery();
-    const realmTaskGroup: ITaskGroupQuery = useTaskGroupQuery();
 
+    useEffect(() => {
+        setSelectedCategory(props.selectedCategory);
+    }, [props.selectedCategory, props.isVisible])
 
-    function onAdd() {
-        const value = finalValue > 0 ? finalValue : Number(inputValue);
-        realmTask.writeTaskObject(value);
+    const onDismiss = useCallback(() => {
+        setFinalValue(0);
+        setInputValue("");
+        props.onDismiss();
+    }, [props]);
 
-        const totalPrice = realmTask.getTaskObject().sum('price');
-        // realmTaskGroup.writeTaskGroup(selectedCategory, totalPrice, CATEGORIES[0].color, );
+    const onAdd = useCallback(() => {
+        try {
+            const value = finalValue > 0 ? finalValue : Number(inputValue);
+
+            // Early validation
+            if (isNaN(value) || value <= 0) {
+                return;
+            }
+
+            const categoryInfo = CATEGORIES.find(
+                (category) => category.label === selectedCategory
+            );
+
+            const task = {
+                category: selectedCategory,
+                price: value,
+                dateAdded: new Date(),
+                lastPrice: value,
+                backgroundColor: categoryInfo!.color
+            };
+
+            realmTask.writeTaskObject(task);
+        } catch (error) {
+            console.error('Error adding task:', error);
+            alert('Failed to add task. Please try again.');
+        }
         onDismiss();
-    }
+    }, [finalValue, inputValue, selectedCategory, realmTask, onDismiss]);
 
     function onCancel() {
         onDismiss();
@@ -48,12 +75,6 @@ function CreateTask(props: CreateTaskProp) {
 
     function onResetAdditional() {
         setFinalValue(0);
-    }
-
-    function onDismiss() {
-        setFinalValue(0);
-        setInputValue("");
-        props.onDismiss();
     }
 
     return (
@@ -127,7 +148,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         paddingVertical: 10,
         paddingHorizontal: 20,
-        height: 200,
+        height: 225,
     },
     dropdownStyle: {
         width: 225,
@@ -145,14 +166,14 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         width: 225,
-        height: 35,
+        height: 45,
         paddingHorizontal: 5,
         fontSize: 14,
     },
     additionalIconStyle: {
         position: "absolute",
         right: 10,
-        top: -30,
+        top: -35,
         width: 24,
         height: 24,
     },

@@ -1,13 +1,45 @@
-import React from "react";
+import useTaskObjectQuery, { ITaskQuery } from "@/hooks/useTaskQuery";
+import { Task } from "@/model/TaskObject";
+import React, { useMemo } from "react";
 import { FlatList, View } from "react-native";
+import { TaskListProps } from "./props/TaskListProps";
+import TaskGroup from "./ui/TaskGroup";
 
-function TaskList() {
+function TaskList(props: TaskListProps) {
+    const realmTask: ITaskQuery = useTaskObjectQuery();
+
+    // Use the data directly if it's reactive
+    const tasklist: Task[] = useMemo(() => {
+        try {
+            return realmTask.getAllTaskByCategory();
+        } catch (error) {
+            console.error('Error getting tasks:', error);
+            return [];
+        }
+    }, [realmTask]);
+
     return (
         <View>
             <FlatList
-                data={undefined}
-                renderItem={undefined}
-                keyExtractor={undefined}
+                data={tasklist}
+                renderItem={({ item }) => (
+                    <View style={{ height: 138 }}>
+                        <TaskGroup
+                            category={item.category}
+                            totalPrice={item.price.toString()}
+                            lastUpdateDate={item.dateAdded.toDateString()}
+                            lastPrice={item.lastPrice.toString()}
+                            backgroundColor={item.backgroundColor}
+                            onDeleteTask={() => {
+                                props.onCetegoryDelete(item.category);
+                            }}
+                            onAddPrice={() => {
+                                props.onCategoryAdd(item.category);
+                            }}
+                        ></TaskGroup>
+                    </View>
+                )}
+                keyExtractor={(item) => item._id}
             />
         </View>
     );

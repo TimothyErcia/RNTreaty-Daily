@@ -3,6 +3,7 @@ export type TaskGroupProps = {
     totalPrice: string;
     lastUpdateDate: string;
     lastPrice: string;
+    backgroundColor: string;
     onDeleteTask: () => void;
     onAddPrice: () => void;
 };

@@ -1,11 +1,16 @@
 import { Colors } from "@/constants/Colors";
-import React from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { TaskGroupProps } from "../props/TaskGroupProps";
 
 function TaskGroup(taskGroupProp: TaskGroupProps) {
+    const [bgColor, setBGColor] = useState("");
+    useLayoutEffect(() => {
+        setBGColor(taskGroupProp.backgroundColor);
+    }, []);   
+
     return (
-        <View style={[styles.flexColumn, styles.container]}>
+        <View style={[styles.flexColumn, styles.container, {backgroundColor: bgColor}]}>
             <View style={[styles.flexRow, styles.innerContainer]}>
                 <View style={styles.textColumn}>
                     <Text style={styles.categoryStyle}>
@@ -63,7 +68,6 @@ const styles = StyleSheet.create({
         maxHeight: 120,
         marginHorizontal: 20,
         borderRadius: 12,
-        backgroundColor: Colors.light.foodCategory,
     },
     innerContainer: {
         maxHeight: 113,
@@ -81,12 +85,12 @@ const styles = StyleSheet.create({
         flex: 0.65,
     },
     categoryStyle: {
-        fontSize: 16,
+        fontSize: 15,
         fontFamily: "inter",
         marginTop: 5,
     },
     dateStyle: {
-        fontSize: 10,
+        fontSize: 11,
         fontFamily: "inter",
         marginTop: -5,
     },

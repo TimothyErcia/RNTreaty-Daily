@@ -1,9 +1,22 @@
 import { Colors } from "@/constants/Colors";
-import React from "react";
+import useTaskObjectQuery, { ITaskQuery } from "@/hooks/useTaskQuery";
+import React, { useMemo } from "react";
 import { Dimensions, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { BottomProps } from "../props/BottomProps";
 
 function Bottom(props: BottomProps) {
+    const realmTask: ITaskQuery = useTaskObjectQuery();
+
+    // Use the data directly if it's reactive
+    const totalPrice: number = useMemo(() => {
+        try {
+            return realmTask.getTotalSum();
+        } catch (error) {
+            console.error('Error getting tasks:', error);
+            return 0;
+        }
+    }, [realmTask.getTotalSum]);
+
     return (
         <View style={styles.container}>
             <View style={styles.textContainer}>
@@ -11,7 +24,7 @@ function Bottom(props: BottomProps) {
                     Total Spending
                 </Text>
                 <Text style={[styles.textColor, styles.price]}>
-                    $ {props.totalPrice}
+                    $ {totalPrice}
                 </Text>
             </View>
             <View style={styles.buttonContainer}>

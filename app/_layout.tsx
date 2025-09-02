@@ -8,11 +8,10 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import CreateTask from "@/components/CreateTask";
+import TaskList from "@/components/TaskList";
 import Bottom from "@/components/ui/Bottom";
-import TaskGroup from "@/components/ui/TaskGroup";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { TaskGroupObject } from "@/model/TaskGroupObject";
 import { TaskObject } from "@/model/TaskObject";
 import { RealmProvider } from "@realm/react";
 import React, { useState } from "react";
@@ -20,7 +19,7 @@ import { SafeAreaView } from "react-native";
 
 export default function RootLayout() {
     const [isModalShown, setIsModalShown] = useState(false);
-    const [isCategorySelected, setIsCategorySelected] = useState(false);
+    const [selectedCategoryVal, setCategoryVal] = useState('');
 
     const colorScheme = useColorScheme();
     const [loaded] = useFonts({
@@ -34,21 +33,13 @@ export default function RootLayout() {
         return null;
     }
 
-    function onDeleteTaskPress() {
-        console.log("onDelete Pressed");
-    }
-
-    function onAddPricePress() {
-        onModalState(true);
-    }
-
     function onAddTaskGroupPress() {
-        onModalState(false);
+        setCategoryVal('');
+        onModalState();
     }
 
-    function onModalState(isCategory: boolean) {
+    function onModalState() {
         setIsModalShown(true);
-        setIsCategorySelected(isCategory);
     }
 
     return (
@@ -62,26 +53,24 @@ export default function RootLayout() {
                     backgroundColor: Colors.light.background,
                 }}
             >
-                {/* <TaskList /> */}
-                <TaskGroup
-                    category={"Food"}
-                    totalPrice={"12,345"}
-                    lastUpdateDate={""}
-                    lastPrice={"500"}
-                    onDeleteTask={onDeleteTaskPress}
-                    onAddPrice={onAddPricePress}
-                />
-                <Bottom
-                    totalPrice={"0.00"}
-                    onAddTaskGroup={onAddTaskGroupPress}
-                />
-                <RealmProvider schema={[TaskGroupObject, TaskObject]}>
+                <RealmProvider schema={[TaskObject]}>
+                    <TaskList
+                        onCategoryAdd={(value) => { 
+                            setCategoryVal(value)
+                            onModalState();
+                        }}
+                        onCetegoryDelete={(value) => {
+                            setCategoryVal(value)
+                        }}
+                    />
+                    <Bottom
+                        onAddTaskGroup={onAddTaskGroupPress}
+                    />
                     <CreateTask
-                        isCategory={isCategorySelected}
+                        selectedCategory={selectedCategoryVal}
                         isVisible={isModalShown}
                         onDismiss={() => {
                             setIsModalShown(false);
-                            setIsCategorySelected(false);
                         }}
                     />
                 </RealmProvider>
