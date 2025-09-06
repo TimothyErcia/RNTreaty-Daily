@@ -5,7 +5,8 @@ import { useQuery, useRealm } from "@realm/react";
 export type ITaskQuery = {
     writeTaskObject: (task: Omit<Task, '_id'>) => void;
     updateTaskObject: (newPrice: number, newDate: Date, oldTaskObject: TaskObject) => void;
-    deleteTaskObject: (TaskObject: TaskObject) => void;
+    deleteByCategoryTaskObject: (category: string) => void;
+    deleteAllTaskObject: () => void;
     getAllTaskByCategory: () => Task[];
     getTotalSum: () => number;
 };
@@ -27,9 +28,16 @@ function useTaskObjectQuery(): ITaskQuery {
         });
     }
 
-    function deleteTaskObject(TaskObject: TaskObject) {
+    function deleteByCategoryTaskObject(category: string) {
         realm.write(() => {
-            realm.delete(TaskObject);
+            const taskById = task.filtered('category = $0', category);
+            realm.delete(taskById);
+        });
+    }
+
+    function deleteAllTaskObject() {
+        realm.write(() => {
+            realm.deleteAll();
         });
     }
 
@@ -68,7 +76,8 @@ function useTaskObjectQuery(): ITaskQuery {
     return {
         writeTaskObject,
         updateTaskObject,
-        deleteTaskObject,
+        deleteByCategoryTaskObject,
+        deleteAllTaskObject,
         getAllTaskByCategory,
         getTotalSum
     };

@@ -10,6 +10,7 @@ import "react-native-reanimated";
 import CreateTask from "@/components/CreateTask";
 import TaskList from "@/components/TaskList";
 import Bottom from "@/components/ui/Bottom";
+import Header from "@/components/ui/Header";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { TaskObject } from "@/model/TaskObject";
@@ -54,13 +55,16 @@ export default function RootLayout() {
                 }}
             >
                 <RealmProvider schema={[TaskObject]}>
+                    <Header onDeleteAll={(value) => {
+                        console.log(value);
+                    }} />
                     <TaskList
-                        onCategoryAdd={(value) => { 
+                        onCategoryAdd={(value) => {
                             setCategoryVal(value)
                             onModalState();
                         }}
                         onCetegoryDelete={(value) => {
-                            setCategoryVal(value)
+                            console.log(`${value} has been deleted`);
                         }}
                     />
                     <Bottom

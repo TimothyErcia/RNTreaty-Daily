@@ -32,6 +32,7 @@ function TaskList(props: TaskListProps) {
                             backgroundColor={item.backgroundColor}
                             onDeleteTask={() => {
                                 props.onCetegoryDelete(item.category);
+                                realmTask.deleteByCategoryTaskObject(item.category)
                             }}
                             onAddPrice={() => {
                                 props.onCategoryAdd(item.category);
