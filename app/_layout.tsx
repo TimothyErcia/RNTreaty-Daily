@@ -5,7 +5,6 @@ import {
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { StatusBar } from "expo-status-bar";
-import "react-native-reanimated";
 
 import CreateTask from "@/components/CreateTask";
 import TaskList from "@/components/TaskList";
@@ -18,9 +17,9 @@ import { RealmProvider } from "@realm/react";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native";
 
-export default function RootLayout() {
+export default function Layout() {
     const [isModalShown, setIsModalShown] = useState(false);
-    const [selectedCategoryVal, setCategoryVal] = useState('');
+    const [selectedCategoryVal, setCategoryVal] = useState("");
 
     const colorScheme = useColorScheme();
     const [loaded] = useFonts({
@@ -35,7 +34,7 @@ export default function RootLayout() {
     }
 
     function onAddTaskGroupPress() {
-        setCategoryVal('');
+        setCategoryVal("");
         onModalState();
     }
 
@@ -44,9 +43,7 @@ export default function RootLayout() {
     }
 
     return (
-        <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
+        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
             <StatusBar style="auto" />
             <SafeAreaView
                 style={{
@@ -55,9 +52,13 @@ export default function RootLayout() {
                 }}
             >
                 <RealmProvider schema={[TaskObject]}>
-                    <Header onDeleteAll={(value) => {
-                        console.log(value);
-                    }} />
+                    <Header
+                        onDeleteAll={(value) => {
+                            console.log(`${value} has been deleted`);
+                        }}
+                        onMenuTap={() => {
+                        }}
+                    />
                     <TaskList
                         onCategoryAdd={(value) => {
                             setCategoryVal(value)
@@ -79,9 +80,6 @@ export default function RootLayout() {
                     />
                 </RealmProvider>
             </SafeAreaView>
-            {/* <GestureHandlerRootView style={{ flex: 1 }}>
-                <Drawer />
-            </GestureHandlerRootView> */}
         </ThemeProvider>
     );
 }

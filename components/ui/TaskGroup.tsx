@@ -21,7 +21,7 @@ function TaskGroup(taskGroupProp: TaskGroupProps) {
                     </Text>
                     <Text style={styles.dateStyle}>
                         Last added date:{" "}
-                        {new Date().toLocaleDateString("en-US")}{" "}
+                        {new Date(taskGroupProp.lastUpdateDate).toLocaleDateString("en-US")}{" "}
                         <Text style={{ fontWeight: "bold" }}>
                             $ {taskGroupProp.lastPrice}
                         </Text>

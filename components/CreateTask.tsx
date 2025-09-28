@@ -3,6 +3,7 @@ import { Colors } from "@/constants/Colors";
 import useTaskQuery, { ITaskQuery } from "@/hooks/useTaskQuery";
 import React, { useCallback, useEffect, useState } from "react";
 import {
+    Dimensions,
     Image,
     Modal,
     Pressable,
@@ -84,6 +85,9 @@ function CreateTask(props: CreateTaskProp) {
             visible={props.isVisible}
             onDismiss={props.onDismiss}
         >
+            <Pressable onPress={props.onDismiss}>
+                <View style={styles.backdrop}></View>
+            </Pressable>
             <View style={styles.container}>
                 <View style={styles.modalView}>
                     <View style={{ width: 225 }}>
@@ -124,7 +128,7 @@ function CreateTask(props: CreateTaskProp) {
                         <Pressable onPress={onCancel}>
                             <Text style={{ color: "red" }}>Cancel</Text>
                         </Pressable>
-                        <Pressable onPress={onAdd} style={{ marginLeft: 20 }}>
+                        <Pressable onPress={onAdd} style={{ marginLeft: 35 }}>
                             <Text style={{ color: "green" }}>Add</Text>
                         </Pressable>
                     </View>
@@ -135,12 +139,17 @@ function CreateTask(props: CreateTaskProp) {
 }
 
 const styles = StyleSheet.create({
+    backdrop: {
+        position:'absolute',
+        width: Dimensions.get('screen').width,
+        height: Dimensions.get('screen').height,
+        backgroundColor: Colors.bottom.background,
+        opacity: Colors.bottom.opacity,
+    },
     container: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: Colors.bottom.background,
-        opacity: Colors.bottom.opacity,
     },
     modalView: {
         backgroundColor: Colors.light.background,
@@ -149,9 +158,10 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20,
         height: 225,
+        width: 280
     },
     dropdownStyle: {
-        width: 225,
+        width: 238,
         backgroundColor: Colors.light.background,
     },
     textInputPlaceholderStyle: {
@@ -165,7 +175,7 @@ const styles = StyleSheet.create({
     textInputStyle: {
         borderWidth: 1,
         borderRadius: 8,
-        width: 225,
+        width: 238,
         height: 45,
         paddingHorizontal: 5,
         fontSize: 14,

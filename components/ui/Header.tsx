@@ -8,7 +8,7 @@ function Header(props: HeaderProps) {
 
     return (
         <View style={styles.container}>
-            <Pressable style={styles.menuStyle} onPress={() => { console.log('menu clicked'); }}>
+            <Pressable style={styles.menuStyle} onPress={() => { props.onMenuTap(); }}>
                 <Image
                     source={require("../../assets/images/icon_menu.png")}
                     style={{ width: 27, height: 27 }}
