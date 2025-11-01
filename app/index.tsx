@@ -12,9 +12,6 @@ import Bottom from "@/components/ui/Bottom";
 import Header from "@/components/ui/Header";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { TaskObject } from "@/model/TaskObject";
-import { RealmProvider } from "@realm/react";
-import { useNavigation } from "expo-router";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native";
 
@@ -28,8 +25,6 @@ export default function Layout() {
         kufam_italic: require("../assets/fonts/kufam_italic.ttf"),
         kufam_regular: require("../assets/fonts/kufam_regular.ttf"),
     });
-
-    const navigation = useNavigation();
 
     if (!loaded) {
         // Async font loading only occurs in development.
@@ -54,28 +49,26 @@ export default function Layout() {
                     backgroundColor: Colors.light.background,
                 }}
             >
-                <RealmProvider schema={[TaskObject]}>
-                    <Header />
-                    <TaskList
-                        onCategoryAdd={(value) => {
-                            setCategoryVal(value)
-                            onModalState();
-                        }}
-                        onCetegoryDelete={(value) => {
-                            console.log(`${value} has been deleted`);
-                        }}
-                    />
-                    <Bottom
-                        onAddTaskGroup={onAddTaskGroupPress}
-                    />
-                    <CreateTask
-                        selectedCategory={selectedCategoryVal}
-                        isVisible={isModalShown}
-                        onDismiss={() => {
-                            setIsModalShown(false);
-                        }}
-                    />
-                </RealmProvider>
+                <Header />
+                <TaskList
+                    onCategoryAdd={(value) => {
+                        setCategoryVal(value)
+                        onModalState();
+                    }}
+                    onCetegoryDelete={(value) => {
+                        console.log(`${value} has been deleted`);
+                    }}
+                />
+                <Bottom
+                    onAddTaskGroup={onAddTaskGroupPress}
+                />
+                <CreateTask
+                    selectedCategory={selectedCategoryVal}
+                    isVisible={isModalShown}
+                    onDismiss={() => {
+                        setIsModalShown(false);
+                    }}
+                />
             </SafeAreaView>
         </ThemeProvider>
     );
