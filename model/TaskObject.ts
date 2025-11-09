@@ -9,14 +9,7 @@ export type Task = {
     backgroundColor: string;
 }
 
-export class TaskObject extends Realm.Object {
-    _id!: string;
-    price!: number;
-    category!: string;
-    dateAdded!: Date;
-    lastPrice!: number
-    backgroundColor!: string;
-
+export class TaskObject extends Realm.Object<Task> {
     static generate(task: Omit<Task, '_id'>) {
         return {
             _id: new Realm.BSON.ObjectId(),

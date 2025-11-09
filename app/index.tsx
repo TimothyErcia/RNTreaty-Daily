@@ -18,6 +18,7 @@ import { SafeAreaView } from "react-native";
 export default function Layout() {
     const [isModalShown, setIsModalShown] = useState(false);
     const [selectedCategoryVal, setCategoryVal] = useState("");
+    const [isUpdateCategory, setUpdate] = useState(false);
 
     const colorScheme = useColorScheme();
     const [loaded] = useFonts({
@@ -52,11 +53,16 @@ export default function Layout() {
                 <Header />
                 <TaskList
                     onCategoryAdd={(value) => {
-                        setCategoryVal(value)
+                        setCategoryVal(value);
                         onModalState();
                     }}
                     onCetegoryDelete={(value) => {
                         console.log(`${value} has been deleted`);
+                    }}
+                    onCategoryUpdate={(value) => {
+                        setCategoryVal(value);
+                        onModalState();
+                        setUpdate(true)
                     }}
                 />
                 <Bottom
@@ -65,8 +71,10 @@ export default function Layout() {
                 <CreateTask
                     selectedCategory={selectedCategoryVal}
                     isVisible={isModalShown}
+                    isUpdate={isUpdateCategory}
                     onDismiss={() => {
                         setIsModalShown(false);
+                        setUpdate(false);
                     }}
                 />
             </SafeAreaView>

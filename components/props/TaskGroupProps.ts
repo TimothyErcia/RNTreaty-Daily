@@ -6,4 +6,5 @@ export type TaskGroupProps = {
     backgroundColor: string;
     onDeleteTask: () => void;
     onAddPrice: () => void;
+    onUpdatePrice: () => void;
 };

@@ -11,7 +11,7 @@ function TaskList(props: TaskListProps) {
     // Use the data directly if it's reactive
     const tasklist: Task[] = useMemo(() => {
         try {
-            return realmTask.getAllTaskByCategory();
+            return realmTask.getAllTask();
         } catch (error) {
             console.error('Error getting tasks:', error);
             return [];
@@ -36,6 +36,9 @@ function TaskList(props: TaskListProps) {
                             }}
                             onAddPrice={() => {
                                 props.onCategoryAdd(item.category);
+                            }}
+                            onUpdatePrice={() => {
+                                props.onCategoryUpdate(item.category);
                             }}
                         ></TaskGroup>
                     </View>

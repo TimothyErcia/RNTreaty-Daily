@@ -4,14 +4,15 @@ import { useQuery, useRealm } from "@realm/react";
 
 export type ITaskQuery = {
     writeTaskObject: (task: Omit<Task, '_id'>) => void;
-    updateTaskObject: (newPrice: number, newDate: Date, oldTaskObject: TaskObject) => void;
+    updateTaskObject: (newPrice: number, task: Task) => void;
     deleteByCategoryTaskObject: (category: string) => void;
     deleteAllTaskObject: () => void;
-    getAllTaskByCategory: () => Task[];
+    getAllTask: () => Task[];
     getTotalSum: () => number;
+    getTaskObjectByCategory: (category: string) => Task;
 };
 
-function useTaskObjectQuery(): ITaskQuery {
+function useTaskQuery(): ITaskQuery {
     const realm = useRealm();
     const task = useQuery(TaskObject);
 
@@ -21,10 +22,14 @@ function useTaskObjectQuery(): ITaskQuery {
         });
     }
 
-    function updateTaskObject(newPrice: number, newDate: Date, oldTaskObject: TaskObject) {
+    function updateTaskObject(newPrice: number, task: Task) {
         realm.write(() => {
-            oldTaskObject.price = newPrice;
-            oldTaskObject.dateAdded = newDate;
+            const latestTask = realm.objectForPrimaryKey('TaskObject', task._id);
+            if (latestTask) {
+                latestTask.price = newPrice;
+                latestTask.lastPrice = newPrice;
+                latestTask.dateAdded = new Date();
+            }
         });
     }
 
@@ -41,17 +46,17 @@ function useTaskObjectQuery(): ITaskQuery {
         });
     }
 
-    function getAllTaskByCategory(): Task[] {
+    function getAllTask(): Task[] {
         let outputTask: Task[] = [];
-        if(task.length < 1) {
+        if (task.length < 1) {
             return [];
         }
 
         CATEGORIES.forEach((value) => {
             const categoryData = task.filtered('category = $0', value.value);
             const sumOfCategory = categoryData.sum('price');
-            if(categoryData && categoryData.length > 0) {
-                const latest = categoryData[categoryData.length-1];
+            if (categoryData && categoryData.length > 0) {
+                const latest = categoryData.at(categoryData.length - 1)!.toJSON() as Task;
                 outputTask.push({
                     _id: latest._id,
                     category: latest.category,
@@ -66,11 +71,16 @@ function useTaskObjectQuery(): ITaskQuery {
     }
 
     function getTotalSum(): number {
-        if(task.length < 1) {
+        if (task.length < 1) {
             return 0;
         }
 
         return task.sum('price');
+    }
+
+    function getTaskObjectByCategory(category: string): Task {
+        const categoryData = task.filtered('category = $0', category);
+        return categoryData.at(categoryData.length - 1)!.toJSON() as Task;
     }
 
     return {
@@ -78,9 +88,10 @@ function useTaskObjectQuery(): ITaskQuery {
         updateTaskObject,
         deleteByCategoryTaskObject,
         deleteAllTaskObject,
-        getAllTaskByCategory,
-        getTotalSum
-    };
+        getAllTask,
+        getTotalSum,
+        getTaskObjectByCategory
+    }
 }
 
-export default useTaskObjectQuery;
+export default useTaskQuery;

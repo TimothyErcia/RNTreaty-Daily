@@ -1,6 +1,7 @@
 import { CATEGORIES } from "@/constants/Categories";
 import { Colors } from "@/constants/Colors";
 import useTaskQuery, { ITaskQuery } from "@/hooks/useTaskQuery";
+import { Task } from "@/model/TaskObject";
 import React, { useCallback, useEffect, useState } from "react";
 import {
     Dimensions,
@@ -21,12 +22,19 @@ function CreateTask(props: CreateTaskProp) {
     const [open, setOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [categories, setCategories] = useState(CATEGORIES);
+    const [task, setTask] = useState<Task>();
 
     const realmTask: ITaskQuery = useTaskQuery();
 
     useEffect(() => {
         setSelectedCategory(props.selectedCategory);
-    }, [props.selectedCategory, props.isVisible])
+        if(props.isUpdate) {
+            const selectedTask = realmTask.getTaskObjectByCategory(props.selectedCategory);
+            const price = selectedTask.price.toString() ?? "";
+            setTask(selectedTask);
+            setInputValue(price);
+        }
+    }, [props.selectedCategory, props.isVisible, props.isUpdate])
 
     const onDismiss = useCallback(() => {
         setFinalValue(0);
@@ -47,7 +55,7 @@ function CreateTask(props: CreateTaskProp) {
                 (category) => category.label === selectedCategory
             );
 
-            const task = {
+            const createdTask = {
                 category: selectedCategory,
                 price: value,
                 dateAdded: new Date(),
@@ -55,13 +63,16 @@ function CreateTask(props: CreateTaskProp) {
                 backgroundColor: categoryInfo!.color
             };
 
-            realmTask.writeTaskObject(task);
+            if (props.isUpdate) {
+                realmTask.updateTaskObject(value, task!);
+            } else {
+                realmTask.writeTaskObject(createdTask);
+            }
         } catch (error) {
             console.error('Error adding task:', error);
-            alert('Failed to add task. Please try again.');
         }
         onDismiss();
-    }, [finalValue, inputValue, selectedCategory, realmTask, onDismiss]);
+    }, [finalValue, inputValue, onDismiss, props.isUpdate, realmTask, selectedCategory]);
 
     function onCancel() {
         onDismiss();
@@ -129,7 +140,12 @@ function CreateTask(props: CreateTaskProp) {
                             <Text style={{ color: "red" }}>Cancel</Text>
                         </Pressable>
                         <Pressable onPress={onAdd} style={{ marginLeft: 35 }}>
-                            <Text style={{ color: "green" }}>Add</Text>
+                            {(!props.isUpdate && <Text style={{ color: "green" }}>
+                                Add
+                            </Text>)}
+                            {(props.isUpdate && <Text style={{ color: "orange" }}>
+                                Update
+                            </Text>)}
                         </Pressable>
                     </View>
                 </View>
@@ -140,7 +156,7 @@ function CreateTask(props: CreateTaskProp) {
 
 const styles = StyleSheet.create({
     backdrop: {
-        position:'absolute',
+        position: 'absolute',
         width: Dimensions.get('screen').width,
         height: Dimensions.get('screen').height,
         backgroundColor: Colors.bottom.background,

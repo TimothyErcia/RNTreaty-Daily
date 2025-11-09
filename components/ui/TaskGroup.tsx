@@ -16,9 +16,11 @@ function TaskGroup(taskGroupProp: TaskGroupProps) {
                     <Text style={styles.categoryStyle}>
                         {taskGroupProp.category}
                     </Text>
-                    <Text style={styles.priceStyle}>
-                        $ {taskGroupProp.totalPrice}
-                    </Text>
+                    <Pressable onPress={taskGroupProp.onUpdatePrice}>
+                        <Text style={styles.priceStyle}>
+                            $ {taskGroupProp.totalPrice}
+                        </Text>
+                    </Pressable>
                     <Text style={styles.dateStyle}>
                         Last added date:{" "}
                         {new Date(taskGroupProp.lastUpdateDate).toLocaleDateString("en-US")}{" "}
