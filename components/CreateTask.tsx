@@ -2,16 +2,16 @@ import { CATEGORIES } from "@/constants/Categories";
 import { Colors } from "@/constants/Colors";
 import useTaskQuery, { ITaskQuery } from "@/hooks/useTaskQuery";
 import { Task } from "@/model/TaskObject";
+import { Feather, SimpleLineIcons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useState } from "react";
 import {
     Dimensions,
-    Image,
     Modal,
     Pressable,
     StyleSheet,
     Text,
     TextInput,
-    View,
+    View
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { CreateTaskProp } from "./props/CreateTaskProp";
@@ -28,7 +28,7 @@ function CreateTask(props: CreateTaskProp) {
 
     useEffect(() => {
         setSelectedCategory(props.selectedCategory);
-        if(props.isUpdate) {
+        if (props.isUpdate) {
             const selectedTask = realmTask.getTaskObjectByCategory(props.selectedCategory);
             const price = selectedTask.price.toString() ?? "";
             setTask(selectedTask);
@@ -121,25 +121,19 @@ function CreateTask(props: CreateTaskProp) {
                         onChangeText={setInputValue}
                     />
                     <Pressable onPress={onAddAdditional}>
-                        <Image
-                            source={require("../assets/images/icon_circle_plus.png")}
-                            style={styles.additionalIconStyle}
-                        />
+                        <SimpleLineIcons name="plus" size={24} color="black" style={styles.additionalIconStyle} />
                     </Pressable>
                     <View style={styles.sublayoutStyle}>
                         <Text style={{ flex: 10 }}>Total: ${finalValue}</Text>
                         <Pressable onPress={onResetAdditional}>
-                            <Image
-                                source={require("../assets/images/icon_reset.png")}
-                                style={{ width: 20, height: 20 }}
-                            />
+                            <Feather name="repeat" size={20} color="black" />
                         </Pressable>
                     </View>
                     <View style={styles.bottomSubLayoutStyle}>
                         <Pressable onPress={onCancel}>
-                            <Text style={{ color: "red" }}>Cancel</Text>
+                            <Text style={{ color: "red", padding: 14 }}>Cancel</Text>
                         </Pressable>
-                        <Pressable onPress={onAdd} style={{ marginLeft: 35 }}>
+                        <Pressable onPress={onAdd} style={{ marginLeft: 20, padding: 14 }}>
                             {(!props.isUpdate && <Text style={{ color: "green" }}>
                                 Add
                             </Text>)}
@@ -212,8 +206,7 @@ const styles = StyleSheet.create({
     bottomSubLayoutStyle: {
         flexDirection: "row",
         justifyContent: "flex-end",
-        marginTop: 12,
-        marginHorizontal: 10,
+        marginHorizontal: 2,
     },
 });
 

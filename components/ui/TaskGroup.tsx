@@ -1,16 +1,17 @@
 import { Colors } from "@/constants/Colors";
+import { Feather, SimpleLineIcons } from "@expo/vector-icons";
 import React, { useLayoutEffect, useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { TaskGroupProps } from "../props/TaskGroupProps";
 
 function TaskGroup(taskGroupProp: TaskGroupProps) {
     const [bgColor, setBGColor] = useState("");
     useLayoutEffect(() => {
         setBGColor(taskGroupProp.backgroundColor);
-    }, []);   
+    }, []);
 
     return (
-        <View style={[styles.flexColumn, styles.container, {backgroundColor: bgColor}]}>
+        <View style={[styles.flexColumn, styles.container, { backgroundColor: bgColor }]}>
             <View style={[styles.flexRow, styles.innerContainer]}>
                 <View style={styles.textColumn}>
                     <Text style={styles.categoryStyle}>
@@ -37,18 +38,12 @@ function TaskGroup(taskGroupProp: TaskGroupProps) {
                         ]}
                     >
                         <Pressable onPress={taskGroupProp.onDeleteTask}>
-                            <Image
-                                source={require("../../assets/images/icon_trash.png")}
-                                style={{ width: 21, height: 21 }}
-                            />
+                            <Feather name="trash" size={23} color='black' />
                         </Pressable>
                     </View>
                     <View style={{ flex: 0.5 }}>
                         <Pressable onPress={taskGroupProp.onAddPrice}>
-                            <Image
-                                source={require("../../assets/images/icon_circle_plus.png")}
-                                style={{ width: 27, height: 27 }}
-                            />
+                            <SimpleLineIcons name="plus" size={23} color="black" />
                         </Pressable>
                     </View>
                 </View>

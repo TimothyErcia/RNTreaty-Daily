@@ -19,7 +19,7 @@ function TaskList(props: TaskListProps) {
     }, [realmTask]);
 
     return (
-        <View>
+        <View style={{ height: '85%' }}>
             <FlatList
                 data={tasklist}
                 renderItem={({ item }) => (

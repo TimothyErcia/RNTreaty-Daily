@@ -1,7 +1,8 @@
 import { Colors } from "@/constants/Colors";
 import useTaskObjectQuery, { ITaskQuery } from "@/hooks/useTaskQuery";
+import { SimpleLineIcons } from "@expo/vector-icons";
 import React, { useMemo } from "react";
-import { Dimensions, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
 import { BottomProps } from "../props/BottomProps";
 
 function Bottom(props: BottomProps) {
@@ -29,10 +30,7 @@ function Bottom(props: BottomProps) {
             </View>
             <View style={styles.buttonContainer}>
                 <Pressable onPress={props.onAddTaskGroup}>
-                    <Image
-                        source={require("../../assets/images/icon_circle_plus_white.png")}
-                        style={{ width: 28, height: 28 }}
-                    />
+                    <SimpleLineIcons name="plus" size={28} color="white" />
                 </Pressable>
             </View>
         </View>
@@ -60,7 +58,7 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flex: 1,
-        flexGrow: 0.08,
+        flexGrow: 0.12,
     },
     textColor: {
         color: "#FFFFFF",
