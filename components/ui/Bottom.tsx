@@ -1,11 +1,11 @@
 import { Colors } from "@/constants/Colors";
 import useTaskObjectQuery, { ITaskQuery } from "@/hooks/useTaskQuery";
 import { SimpleLineIcons } from "@expo/vector-icons";
-import React, { useMemo } from "react";
-import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useMemo } from 'react';
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { BottomProps } from "../props/BottomProps";
 
-function Bottom(props: BottomProps) {
+function Bottom(props: BottomProps): React.JSX.Element {
     const realmTask: ITaskQuery = useTaskObjectQuery();
 
     // Use the data directly if it's reactive
@@ -13,10 +13,10 @@ function Bottom(props: BottomProps) {
         try {
             return realmTask.getTotalSum();
         } catch (error) {
-            console.error('Error getting tasks:', error);
+            console.error('Error getting total sum:', error);
             return 0;
         }
-    }, [realmTask.getTotalSum]);
+    }, [realmTask]);
 
     return (
         <View style={styles.container}>
@@ -39,18 +39,17 @@ function Bottom(props: BottomProps) {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: Colors.bottom.background,
         opacity: Colors.bottom.opacity,
         borderRadius: 32,
         height: 64,
-        width: Dimensions.get('screen').width - 100,
         paddingHorizontal: 28,
-        marginHorizontal: 45,
         position: "absolute",
         bottom: 40,
+        left: 50,
+        right: 50,
     },
     textContainer: {
         flex: 1,
@@ -73,4 +72,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Bottom;
+export default React.memo(Bottom);

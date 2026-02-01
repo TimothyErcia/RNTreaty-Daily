@@ -1,11 +1,11 @@
 import { CATEGORIES } from "@/constants/Categories";
 import { Colors } from "@/constants/Colors";
-import useTaskQuery, { ITaskQuery } from "@/hooks/useTaskQuery";
+import useTaskQuery, { TaskQuery } from "@/hooks/useTaskQuery";
 import { Task } from "@/model/TaskObject";
 import { Feather, SimpleLineIcons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    Dimensions,
+    FlatList,
     Modal,
     Pressable,
     StyleSheet,
@@ -16,7 +16,7 @@ import {
 import DropDownPicker from "react-native-dropdown-picker";
 import { CreateTaskProp } from "./props/CreateTaskProp";
 
-function CreateTask(props: CreateTaskProp) {
+function CreateTask(props: CreateTaskProp): React.JSX.Element {
     const [finalValue, setFinalValue] = useState(0);
     const [inputValue, setInputValue] = useState("");
     const [open, setOpen] = useState(false);
@@ -24,7 +24,7 @@ function CreateTask(props: CreateTaskProp) {
     const [categories, setCategories] = useState(CATEGORIES);
     const [task, setTask] = useState<Task>();
 
-    const realmTask: ITaskQuery = useTaskQuery();
+    const realmTask: TaskQuery = useTaskQuery();
 
     useEffect(() => {
         setSelectedCategory(props.selectedCategory);
@@ -34,7 +34,7 @@ function CreateTask(props: CreateTaskProp) {
             setTask(selectedTask);
             setInputValue(price);
         }
-    }, [props.selectedCategory, props.isVisible, props.isUpdate])
+    }, [props.selectedCategory, props.isVisible, props.isUpdate, realmTask]);
 
     const onDismiss = useCallback(() => {
         setFinalValue(0);
@@ -55,12 +55,16 @@ function CreateTask(props: CreateTaskProp) {
                 (category) => category.label === selectedCategory
             );
 
+            if (!categoryInfo) {
+                return;
+            }
+
             const createdTask = {
                 category: selectedCategory,
                 price: value,
                 dateAdded: new Date(),
                 lastPrice: value,
-                backgroundColor: categoryInfo!.color
+                backgroundColor: categoryInfo.color
             };
 
             if (props.isUpdate) {
@@ -79,10 +83,11 @@ function CreateTask(props: CreateTaskProp) {
     }
 
     function onAddAdditional() {
-        setFinalValue((prev) => {
-            return prev + Number(inputValue);
-        });
-        setInputValue("");
+        const value = Number(inputValue);
+        if (!isNaN(value) && value > 0) {
+            setFinalValue((prev) => prev + value);
+            setInputValue("");
+        }
     }
 
     function onResetAdditional() {
@@ -101,7 +106,9 @@ function CreateTask(props: CreateTaskProp) {
             </Pressable>
             <View style={styles.container}>
                 <View style={styles.modalView}>
-                    <View style={{ width: 225 }}>
+
+                    {/* Category Dropdown */}
+                    <View style={styles.dropdownContainer}>
                         <DropDownPicker
                             style={styles.dropdownStyle}
                             open={open}
@@ -113,6 +120,8 @@ function CreateTask(props: CreateTaskProp) {
                             placeholder={"Choose a category"}
                         />
                     </View>
+
+                    {/* Price Input */}
                     <Text style={styles.textInputPlaceholderStyle}>Price</Text>
                     <TextInput
                         style={styles.textInputStyle}
@@ -123,21 +132,32 @@ function CreateTask(props: CreateTaskProp) {
                     <Pressable onPress={onAddAdditional}>
                         <SimpleLineIcons name="plus" size={24} color="black" style={styles.additionalIconStyle} />
                     </Pressable>
+
+                    {/* History List */}
+                    <Text style={styles.textInputPlaceholderStyle}>Price</Text>
+                    <View>
+                        <FlatList
+                            data={undefined}
+                            renderItem={undefined}
+                        />
+                    </View>
+
+                    {/* Bottom UI of Create */}
                     <View style={styles.sublayoutStyle}>
-                        <Text style={{ flex: 10 }}>Total: ${finalValue}</Text>
+                        <Text style={styles.totalText}>Total: ${finalValue}</Text>
                         <Pressable onPress={onResetAdditional}>
                             <Feather name="repeat" size={20} color="black" />
                         </Pressable>
                     </View>
                     <View style={styles.bottomSubLayoutStyle}>
                         <Pressable onPress={onCancel}>
-                            <Text style={{ color: "red", padding: 14 }}>Cancel</Text>
+                            <Text style={styles.cancelText}>Cancel</Text>
                         </Pressable>
-                        <Pressable onPress={onAdd} style={{ marginLeft: 20, padding: 14 }}>
-                            {(!props.isUpdate && <Text style={{ color: "green" }}>
+                        <Pressable onPress={onAdd} style={styles.actionButton}>
+                            {(!props.isUpdate && <Text style={styles.addText}>
                                 Add
                             </Text>)}
-                            {(props.isUpdate && <Text style={{ color: "orange" }}>
+                            {(props.isUpdate && <Text style={styles.updateText}>
                                 Update
                             </Text>)}
                         </Pressable>
@@ -150,9 +170,7 @@ function CreateTask(props: CreateTaskProp) {
 
 const styles = StyleSheet.create({
     backdrop: {
-        position: 'absolute',
-        width: Dimensions.get('screen').width,
-        height: Dimensions.get('screen').height,
+        ...StyleSheet.absoluteFillObject,
         backgroundColor: Colors.bottom.background,
         opacity: Colors.bottom.opacity,
     },
@@ -169,6 +187,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         height: 225,
         width: 280
+    },
+    dropdownContainer: {
+        width: 225,
     },
     dropdownStyle: {
         width: 238,
@@ -208,6 +229,23 @@ const styles = StyleSheet.create({
         justifyContent: "flex-end",
         marginHorizontal: 2,
     },
+    totalText: {
+        flex: 10,
+    },
+    cancelText: {
+        color: "red",
+        padding: 14,
+    },
+    actionButton: {
+        marginLeft: 20,
+        padding: 14,
+    },
+    addText: {
+        color: "green",
+    },
+    updateText: {
+        color: "orange",
+    },
 });
 
-export default CreateTask;
+export default React.memo(CreateTask);
