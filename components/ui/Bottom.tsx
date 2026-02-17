@@ -1,12 +1,12 @@
 import { Colors } from "@/constants/Colors";
-import useTaskObjectQuery, { ITaskQuery } from "@/hooks/useTaskQuery";
+import useTaskObjectQuery, { TaskQuery } from "@/hooks/useTaskQuery";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { BottomProps } from "../props/BottomProps";
 
 function Bottom(props: BottomProps): React.JSX.Element {
-    const realmTask: ITaskQuery = useTaskObjectQuery();
+    const realmTask: TaskQuery = useTaskObjectQuery();
 
     // Use the data directly if it's reactive
     const totalPrice: number = useMemo(() => {

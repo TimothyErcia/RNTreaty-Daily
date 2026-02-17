@@ -7,8 +7,10 @@ export type TaskQuery = {
   updateTaskObject: (newPrice: number, task: Task) => void;
   deleteByCategoryTaskObject: (category: string) => void;
   deleteAllTaskObject: () => void;
+  deleteById: (id: string) => void;
   getAllTask: () => Task[];
   getTotalSum: () => number;
+  getTotalSumByCategory: (category: string) => number;
   getTaskObjectByCategory: (category: string) => Task;
   getHistoryByCategory: (category: string) => Task[];
 };
@@ -81,6 +83,16 @@ function useTaskQuery(): TaskQuery {
     return task.sum("price");
   }
 
+  function getTotalSumByCategory(category: string): number {
+    const categoryData = task.filtered("category = $0", category);
+    categoryData.at(categoryData.length - 1)!.toJSON() as Task;
+    if (categoryData.length < 1) {
+      return 0;
+    }
+
+    return categoryData.sum("price");
+  }
+
   function getTaskObjectByCategory(category: string): Task {
     const categoryData = task.filtered("category = $0", category);
     return categoryData.at(categoryData.length - 1)!.toJSON() as Task;
@@ -91,13 +103,22 @@ function useTaskQuery(): TaskQuery {
     return categoryData.toJSON() as Task[];
   }
 
+  function deleteById(id: string) {
+    realm.write(() => {
+      const taskById = realm.objectForPrimaryKey("TaskObject", id);
+      realm.delete(taskById);
+    });
+  }
+
   return {
     writeTaskObject,
     updateTaskObject,
     deleteByCategoryTaskObject,
     deleteAllTaskObject,
+    deleteById,
     getAllTask,
     getTotalSum,
+    getTotalSumByCategory,
     getTaskObjectByCategory,
     getHistoryByCategory,
   };

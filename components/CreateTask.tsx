@@ -3,8 +3,9 @@ import { Colors } from "@/constants/Colors";
 import useTaskQuery, { TaskQuery } from "@/hooks/useTaskQuery";
 import { Task } from "@/model/TaskObject";
 import { Feather, SimpleLineIcons } from "@expo/vector-icons";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
+    Dimensions,
     FlatList,
     Modal,
     Pressable,
@@ -15,6 +16,7 @@ import {
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { CreateTaskProp } from "./props/CreateTaskProp";
+import HistoryItem from "./ui/HistoryItem";
 
 function CreateTask(props: CreateTaskProp): React.JSX.Element {
     const [finalValue, setFinalValue] = useState(0);
@@ -27,24 +29,50 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
     const realmTask: TaskQuery = useTaskQuery();
 
     useEffect(() => {
-        setSelectedCategory(props.selectedCategory);
-        if (props.isUpdate) {
+        if (props.selectedCategory !== "") {
+            setSelectedCategory(props.selectedCategory);
             const selectedTask = realmTask.getTaskObjectByCategory(props.selectedCategory);
+            const totalSum = realmTask.getTotalSumByCategory(props.selectedCategory);
             const price = selectedTask.price.toString() ?? "";
+
+            if (props.isUpdate) {
+                setFinalValue(totalSum);
+                setInputValue(price.toString());
+            } else {
+                setFinalValue(totalSum);
+            }
+
             setTask(selectedTask);
-            setInputValue(price);
         }
     }, [props.selectedCategory, props.isVisible, props.isUpdate, realmTask]);
+
+    const historyList: Task[] = useMemo(() => {
+        if (props.selectedCategory === "") return [];
+
+        try {
+            return realmTask.getHistoryByCategory(props.selectedCategory);
+        } catch (error) {
+            console.error('Error getting tasks:', error);
+            return [];
+        }
+    }, [props.selectedCategory, realmTask]);
 
     const onDismiss = useCallback(() => {
         setFinalValue(0);
         setInputValue("");
+        setSelectedCategory("");
+        setTask(undefined);
         props.onDismiss();
     }, [props]);
 
-    const onAdd = useCallback(() => {
+    const onAddUpdate = useCallback(() => {
         try {
-            const value = finalValue > 0 ? finalValue : Number(inputValue);
+            let value = 0;
+            if (props.isUpdate) {
+                value = Number(inputValue);
+            } else {
+                value = finalValue > Number(inputValue) ? finalValue : Number(inputValue);
+            }
 
             // Early validation
             if (isNaN(value) || value <= 0) {
@@ -59,7 +87,7 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
                 return;
             }
 
-            const createdTask = {
+            const createdTask: Omit<Task, '_id'> = {
                 category: selectedCategory,
                 price: value,
                 dateAdded: new Date(),
@@ -76,7 +104,7 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
             console.error('Error adding task:', error);
         }
         onDismiss();
-    }, [finalValue, inputValue, onDismiss, props.isUpdate, realmTask, selectedCategory]);
+    }, [finalValue, inputValue, onDismiss, props.isUpdate, realmTask, selectedCategory, task]);
 
     function onCancel() {
         onDismiss();
@@ -134,11 +162,20 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
                     </Pressable>
 
                     {/* History List */}
-                    <Text style={styles.textInputPlaceholderStyle}>Price</Text>
-                    <View>
+                    <Text style={styles.historyTitle}>History</Text>
+                    <View style={styles.historyContainer}>
                         <FlatList
-                            data={undefined}
-                            renderItem={undefined}
+                            data={historyList}
+                            keyExtractor={(item: Task) => item._id}
+                            renderItem={({ item }) => (
+                                <HistoryItem
+                                    id={item._id}
+                                    date={item.dateAdded.toString()}
+                                    price={item.price}
+                                    onEdit={() => { }}
+                                    onRemove={() => { }}
+                                />
+                            )}
                         />
                     </View>
 
@@ -153,7 +190,7 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
                         <Pressable onPress={onCancel}>
                             <Text style={styles.cancelText}>Cancel</Text>
                         </Pressable>
-                        <Pressable onPress={onAdd} style={styles.actionButton}>
+                        <Pressable onPress={onAddUpdate} style={styles.actionButton}>
                             {(!props.isUpdate && <Text style={styles.addText}>
                                 Add
                             </Text>)}
@@ -170,7 +207,9 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
 
 const styles = StyleSheet.create({
     backdrop: {
-        ...StyleSheet.absoluteFillObject,
+        width: Dimensions.get("screen").width,
+        height: Dimensions.get("screen").height,
+        position: 'absolute',
         backgroundColor: Colors.bottom.background,
         opacity: Colors.bottom.opacity,
     },
@@ -185,7 +224,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         paddingVertical: 10,
         paddingHorizontal: 20,
-        height: 225,
+        height: 400,
         width: 280
     },
     dropdownContainer: {
@@ -200,8 +239,13 @@ const styles = StyleSheet.create({
         position: "relative",
         top: 10,
         left: 10,
-        width: 40,
+        width: 38,
         zIndex: 10,
+    },
+    historyTitle: {
+        marginTop: 8,
+        fontSize: 16,
+        color: '#222222',
     },
     textInputStyle: {
         borderWidth: 1,
@@ -246,6 +290,11 @@ const styles = StyleSheet.create({
     updateText: {
         color: "orange",
     },
+    historyContainer: {
+        width: 'auto',
+        marginHorizontal: 5,
+        height: 148
+    }
 });
 
 export default React.memo(CreateTask);
