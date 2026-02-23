@@ -38,8 +38,6 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
             if (props.isUpdate) {
                 setFinalValue(totalSum);
                 setInputValue(price.toString());
-            } else {
-                setFinalValue(totalSum);
             }
 
             setTask(selectedTask);
@@ -71,7 +69,7 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
             if (props.isUpdate) {
                 value = Number(inputValue);
             } else {
-                value = finalValue > Number(inputValue) ? finalValue : Number(inputValue);
+                value = finalValue > 0 ? finalValue : Number(inputValue);
             }
 
             // Early validation
@@ -127,9 +125,9 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
             animationType="fade"
             transparent={true}
             visible={props.isVisible}
-            onDismiss={props.onDismiss}
+            onDismiss={onDismiss}
         >
-            <Pressable onPress={props.onDismiss}>
+            <Pressable onPress={onDismiss}>
                 <View style={styles.backdrop}></View>
             </Pressable>
             <View style={styles.container}>
@@ -173,7 +171,6 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
                                     date={item.dateAdded.toString()}
                                     price={item.price}
                                     onEdit={() => { }}
-                                    onRemove={() => { }}
                                 />
                             )}
                         />
@@ -293,7 +290,8 @@ const styles = StyleSheet.create({
     historyContainer: {
         width: 'auto',
         marginHorizontal: 5,
-        height: 148
+        height: 148,
+        maxHeight: 148,
     }
 });
 

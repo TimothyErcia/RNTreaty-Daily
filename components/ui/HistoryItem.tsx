@@ -13,8 +13,7 @@ function HistoryItem(props: HistoryItemProp) {
 
     const onRemove = useCallback(() => {
         realmTask.deleteById(props.id);
-        props.onRemove();
-    }, [realmTask, props.id])
+    }, [realmTask, props])
 
     return <>
         <View style={styles.container}>
@@ -31,8 +30,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'row',
-        gap: 40,
         marginVertical: 4,
+        alignItems: 'center',
+        justifyContent: 'space-between'
     },
     detailText: {
         top: 5

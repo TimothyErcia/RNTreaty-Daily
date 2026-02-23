@@ -3,5 +3,4 @@ export type HistoryItemProp = {
   price: number;
   date: string;
   onEdit: () => void;
-  onRemove: () => void;
 };
