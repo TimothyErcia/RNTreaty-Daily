@@ -1,48 +1,21 @@
-import {
-    DarkTheme,
-    DefaultTheme,
-    ThemeProvider
-} from "@react-navigation/native";
-import { useFonts } from "expo-font";
 import { StatusBar } from "expo-status-bar";
 
 import CreateTask from "@/components/CreateTask";
+import { useTaskStore } from "@/components/states/TaskState";
 import TaskList from "@/components/TaskList";
 import Bottom from "@/components/ui/Bottom";
 import Header from "@/components/ui/Header";
 import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native";
 
 export default function Layout() {
+    const { updateCategory } = useTaskStore();
     const [isModalShown, setIsModalShown] = useState(false);
-    const [selectedCategoryVal, setCategoryVal] = useState("");
     const [isUpdateCategory, setUpdate] = useState(false);
 
-    const colorScheme = useColorScheme();
-    const [loaded] = useFonts({
-        inter: require("../assets/fonts/inter.ttf"),
-        kufam_italic: require("../assets/fonts/kufam_italic.ttf"),
-        kufam_regular: require("../assets/fonts/kufam_regular.ttf"),
-    });
-
-    if (!loaded) {
-        // Async font loading only occurs in development.
-        return null;
-    }
-
-    function onAddTaskGroupPress() {
-        setCategoryVal("");
-        onModalState();
-    }
-
-    function onModalState() {
-        setIsModalShown(true);
-    }
-
     return (
-        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <>
             <StatusBar style="auto" />
             <SafeAreaView
                 style={{
@@ -52,24 +25,24 @@ export default function Layout() {
             >
                 <Header />
                 <TaskList
-                    onCategoryAdd={(value) => {
-                        setCategoryVal(value);
-                        onModalState();
+                    onCategoryAdd={() => {
+                        setIsModalShown(true);
                     }}
                     onCetegoryDelete={(value) => {
                         console.log(`${value} has been deleted`);
                     }}
-                    onCategoryUpdate={(value) => {
-                        setCategoryVal(value);
-                        onModalState();
+                    onCategoryUpdate={() => {
+                        setIsModalShown(true);
                         setUpdate(true)
                     }}
                 />
                 <Bottom
-                    onAddTaskGroup={onAddTaskGroupPress}
+                    onAddTaskGroup={() => {
+                        setIsModalShown(true)
+                        updateCategory("");
+                    }}
                 />
                 <CreateTask
-                    selectedCategory={selectedCategoryVal}
                     isVisible={isModalShown}
                     isUpdate={isUpdateCategory}
                     onDismiss={() => {
@@ -78,6 +51,6 @@ export default function Layout() {
                     }}
                 />
             </SafeAreaView>
-        </ThemeProvider>
+        </>
     );
 }

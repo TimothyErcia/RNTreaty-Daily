@@ -3,9 +3,11 @@ import { Task } from "@/model/TaskObject";
 import React, { useMemo } from "react";
 import { FlatList, View } from "react-native";
 import { TaskListProps } from "./props/TaskListProps";
+import { useTaskStore } from "./states/TaskState";
 import TaskGroup from "./ui/TaskGroup";
 
 function TaskList(props: TaskListProps) {
+    const { setCurrentTask } = useTaskStore();
     const realmTask: TaskQuery = useTaskObjectQuery();
 
     // Use the data directly if it's reactive
@@ -22,28 +24,26 @@ function TaskList(props: TaskListProps) {
         <View style={{ height: '85%' }}>
             <FlatList
                 data={tasklist}
+                keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
                     <View style={{ height: 138 }}>
                         <TaskGroup
-                            category={item.category}
-                            totalPrice={item.price.toString()}
-                            lastUpdateDate={item.dateAdded.toDateString()}
-                            lastPrice={item.lastPrice.toString()}
-                            backgroundColor={item.backgroundColor}
+                            task={item}
                             onDeleteTask={() => {
                                 props.onCetegoryDelete(item.category);
-                                realmTask.deleteByCategoryTaskObject(item.category)
+                                realmTask.deleteByCategoryTaskObject(item.category);
                             }}
                             onAddPrice={() => {
-                                props.onCategoryAdd(item.category);
+                                props.onCategoryAdd();
+                                setCurrentTask(item);
                             }}
                             onUpdatePrice={() => {
-                                props.onCategoryUpdate(item.category);
+                                props.onCategoryUpdate();
+                                setCurrentTask(item);
                             }}
                         ></TaskGroup>
                     </View>
                 )}
-                keyExtractor={(item) => item._id}
             />
         </View>
     );

@@ -1,10 +1,8 @@
+import { Task } from "@/model/TaskObject";
+
 export type TaskGroupProps = {
-    category: string;
-    totalPrice: string;
-    lastUpdateDate: string;
-    lastPrice: string;
-    backgroundColor: string;
-    onDeleteTask: () => void;
-    onAddPrice: () => void;
-    onUpdatePrice: () => void;
+  task: Task;
+  onDeleteTask: () => void;
+  onAddPrice: () => void;
+  onUpdatePrice: () => void;
 };

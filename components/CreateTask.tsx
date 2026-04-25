@@ -3,10 +3,11 @@ import { Colors } from "@/constants/Colors";
 import useTaskQuery, { TaskQuery } from "@/hooks/useTaskQuery";
 import { Task } from "@/model/TaskObject";
 import { Feather, SimpleLineIcons } from "@expo/vector-icons";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
     Dimensions,
     FlatList,
+    KeyboardAvoidingView,
     Modal,
     Pressable,
     StyleSheet,
@@ -16,85 +17,74 @@ import {
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { CreateTaskProp } from "./props/CreateTaskProp";
+import * as state from "./states/TaskState";
+import { useTaskStore } from "./states/TaskState";
 import HistoryItem from "./ui/HistoryItem";
 
 function CreateTask(props: CreateTaskProp): React.JSX.Element {
-    const [finalValue, setFinalValue] = useState(0);
-    const [inputValue, setInputValue] = useState("");
-    const [open, setOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [categories, setCategories] = useState(CATEGORIES);
-    const [task, setTask] = useState<Task>();
+    // Task State
+    const taskStore: state.TaskStore = useTaskStore();
 
+    // Dropdown state
+    const [open, setOpen] = useState(false);
+    const [selectedCategory, setCategory] = useState("");
+
+    // Input Value
+    const inputValueRef = useRef<number>(0);
+    const inputRef = useRef<TextInput>(null);
+
+    // Additional value state
+    const [additionalValue, setAdditionalValue] = useState(0);
+
+    // Realm Hook
     const realmTask: TaskQuery = useTaskQuery();
 
-    useEffect(() => {
-        if (props.selectedCategory !== "") {
-            setSelectedCategory(props.selectedCategory);
-            const selectedTask = realmTask.getTaskObjectByCategory(props.selectedCategory);
-            const totalSum = realmTask.getTotalSumByCategory(props.selectedCategory);
-            const price = selectedTask.price.toString() ?? "";
-
-            if (props.isUpdate) {
-                setFinalValue(totalSum);
-                setInputValue(price.toString());
-            }
-
-            setTask(selectedTask);
-        }
-    }, [props.selectedCategory, props.isVisible, props.isUpdate, realmTask]);
-
-    const historyList: Task[] = useMemo(() => {
-        if (props.selectedCategory === "") return [];
+    /**
+     * Category Total Value will always dispatch on category change
+     */
+    const categoryTotalValue = useMemo(() => {
+        if (taskStore.currentTask.category === "") return 0;
 
         try {
-            return realmTask.getHistoryByCategory(props.selectedCategory);
+            return realmTask.getTotalSumByCategory(taskStore.currentTask.category);
+        } catch (error) {
+            console.error('Error getting tasks:', error);
+            return 0;
+        }
+    }, [taskStore.currentTask.category, realmTask])
+
+    /**
+     * History List will always dispatch on category change
+     */
+    const historyList: Task[] = useMemo(() => {
+        if (taskStore.currentTask.category === "") return [];
+
+        try {
+            return realmTask.getHistoryByCategory(taskStore.currentTask.category);
         } catch (error) {
             console.error('Error getting tasks:', error);
             return [];
         }
-    }, [props.selectedCategory, realmTask]);
+    }, [taskStore.currentTask.category, realmTask]);
 
-    const onDismiss = useCallback(() => {
-        setFinalValue(0);
-        setInputValue("");
-        setSelectedCategory("");
-        setTask(undefined);
+    useLayoutEffect(() => {
+        setCategory(taskStore.currentTask.category);
+    }, [taskStore.currentTask]);
+
+    function onDismiss() {
+        taskStore.resetCurrentTask();
+        inputRef.current?.clear();
+        setAdditionalValue(0);
         props.onDismiss();
-    }, [props]);
+    }
 
-    const onAddUpdate = useCallback(() => {
+    function onAddUpdate() {
+        if (taskStore.currentTask.price === 0) return;
+
+        const createdTask: Omit<Task, '_id'> = taskStore.currentTask;
         try {
-            let value = 0;
             if (props.isUpdate) {
-                value = Number(inputValue);
-            } else {
-                value = finalValue > 0 ? finalValue : Number(inputValue);
-            }
-
-            // Early validation
-            if (isNaN(value) || value <= 0) {
-                return;
-            }
-
-            const categoryInfo = CATEGORIES.find(
-                (category) => category.label === selectedCategory
-            );
-
-            if (!categoryInfo) {
-                return;
-            }
-
-            const createdTask: Omit<Task, '_id'> = {
-                category: selectedCategory,
-                price: value,
-                dateAdded: new Date(),
-                lastPrice: value,
-                backgroundColor: categoryInfo.color
-            };
-
-            if (props.isUpdate) {
-                realmTask.updateTaskObject(value, task!);
+                realmTask.updateTaskObject(taskStore.currentTask.price, taskStore.currentTask);
             } else {
                 realmTask.writeTaskObject(createdTask);
             }
@@ -102,22 +92,39 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
             console.error('Error adding task:', error);
         }
         onDismiss();
-    }, [finalValue, inputValue, onDismiss, props.isUpdate, realmTask, selectedCategory, task]);
-
-    function onCancel() {
-        onDismiss();
     }
 
     function onAddAdditional() {
-        const value = Number(inputValue);
+        const value = Number(inputValueRef.current);
         if (!isNaN(value) && value > 0) {
-            setFinalValue((prev) => prev + value);
-            setInputValue("");
+            setAdditionalValue((prev) => prev + value);
+            taskStore.updatePrice(additionalValue + value);
+            inputRef.current?.clear();
         }
     }
 
     function onResetAdditional() {
-        setFinalValue(0);
+        setAdditionalValue(0);
+    }
+
+    function onCategoryChange(value: string | null) {
+        if (value === null) {
+            return;
+        }
+
+        const categoryInfo = CATEGORIES.find(
+            (category) => category.value === selectedCategory
+        );
+
+        if (!categoryInfo) {
+            return;
+        }
+
+        taskStore.resetCurrentTask();
+        taskStore.updateId(historyList.at(0)?._id ?? "")
+        taskStore.updateCategory(categoryInfo.value);
+        taskStore.updateBackgroundColor(categoryInfo.color);
+        taskStore.updateLastPrice(categoryTotalValue);
     }
 
     return (
@@ -131,72 +138,84 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
                 <View style={styles.backdrop}></View>
             </Pressable>
             <View style={styles.container}>
-                <View style={styles.modalView}>
+                <KeyboardAvoidingView behavior="padding">
+                    <View style={styles.modalView}>
 
-                    {/* Category Dropdown */}
-                    <View style={styles.dropdownContainer}>
-                        <DropDownPicker
-                            style={styles.dropdownStyle}
-                            open={open}
-                            value={selectedCategory}
-                            items={categories}
-                            setOpen={setOpen}
-                            setValue={setSelectedCategory}
-                            setItems={setCategories}
-                            placeholder={"Choose a category"}
+                        {/* Category Dropdown */}
+                        <View style={styles.dropdownContainer}>
+                            <DropDownPicker
+                                style={styles.dropdownStyle}
+                                open={open}
+                                value={selectedCategory}
+                                items={CATEGORIES}
+                                setOpen={setOpen}
+                                setValue={setCategory}
+                                onChangeValue={(value) => onCategoryChange(value)}
+                                placeholder={"Choose a category"}
+                            />
+                        </View>
+
+                        {/* Price Input */}
+                        <Text style={styles.textInputPlaceholderStyle}>Price</Text>
+                        <TextInput
+                            style={styles.textInputStyle}
+                            keyboardType="numeric"
+                            ref={inputRef}
+                            onChangeText={(text) => {
+                                inputValueRef.current = Number(text)
+                                //debounce
+                                setTimeout(() => {
+                                    const value = Number(text);
+                                    taskStore.updatePrice(value);
+                                }, 300)
+                            }}
                         />
-                    </View>
-
-                    {/* Price Input */}
-                    <Text style={styles.textInputPlaceholderStyle}>Price</Text>
-                    <TextInput
-                        style={styles.textInputStyle}
-                        keyboardType="numeric"
-                        value={inputValue}
-                        onChangeText={setInputValue}
-                    />
-                    <Pressable onPress={onAddAdditional}>
-                        <SimpleLineIcons name="plus" size={24} color="black" style={styles.additionalIconStyle} />
-                    </Pressable>
-
-                    {/* History List */}
-                    <Text style={styles.historyTitle}>History</Text>
-                    <View style={styles.historyContainer}>
-                        <FlatList
-                            data={historyList}
-                            keyExtractor={(item: Task) => item._id}
-                            renderItem={({ item }) => (
-                                <HistoryItem
-                                    id={item._id}
-                                    date={item.dateAdded.toString()}
-                                    price={item.price}
-                                    onEdit={() => { }}
-                                />
-                            )}
-                        />
-                    </View>
-
-                    {/* Bottom UI of Create */}
-                    <View style={styles.sublayoutStyle}>
-                        <Text style={styles.totalText}>Total: ${finalValue}</Text>
-                        <Pressable onPress={onResetAdditional}>
-                            <Feather name="repeat" size={20} color="black" />
+                        <Pressable onPress={onAddAdditional}>
+                            <SimpleLineIcons name="plus" size={24} color="black" style={styles.additionalIconStyle} />
                         </Pressable>
+
+                        {/* History List */}
+                        <Text style={styles.historyTitle}>History</Text>
+                        <View style={styles.historyContainer}>
+                            <FlatList
+                                data={historyList}
+                                keyExtractor={(item: Task) => item._id}
+                                renderItem={({ item }) => (
+                                    <HistoryItem
+                                        id={item._id}
+                                        date={item.dateAdded.toString()}
+                                        price={item.price}
+                                        onEdit={() => { }}
+                                    />
+                                )}
+                            />
+                        </View>
+
+                        {/* Bottom UI of Create */}
+                        <View style={styles.sublayoutStyle}>
+                            <View style={styles.totalText}>
+                                <Text>To be added: ${additionalValue}</Text>
+                                <Text>Total: ${categoryTotalValue}</Text>
+                            </View>
+                            <Pressable onPress={onResetAdditional}>
+                                <Feather name="repeat" size={20} color="black" />
+                            </Pressable>
+                        </View>
+                        <View style={styles.bottomSubLayoutStyle}>
+                            <Pressable onPress={onDismiss}>
+                                <Text style={styles.cancelText}>Cancel</Text>
+                            </Pressable>
+                            <Pressable onPress={onAddUpdate} style={styles.actionButton}>
+                                {(!props.isUpdate && <Text style={styles.addText}>
+                                    Add
+                                </Text>)}
+                                {(props.isUpdate && <Text style={styles.updateText}>
+                                    Update
+                                </Text>)}
+                            </Pressable>
+                        </View>
                     </View>
-                    <View style={styles.bottomSubLayoutStyle}>
-                        <Pressable onPress={onCancel}>
-                            <Text style={styles.cancelText}>Cancel</Text>
-                        </Pressable>
-                        <Pressable onPress={onAddUpdate} style={styles.actionButton}>
-                            {(!props.isUpdate && <Text style={styles.addText}>
-                                Add
-                            </Text>)}
-                            {(props.isUpdate && <Text style={styles.updateText}>
-                                Update
-                            </Text>)}
-                        </Pressable>
-                    </View>
-                </View>
+                </KeyboardAvoidingView>
             </View>
         </Modal>
     );
@@ -261,7 +280,7 @@ const styles = StyleSheet.create({
     },
     sublayoutStyle: {
         flexDirection: "row",
-        marginVertical: 16,
+        marginVertical: 8,
         marginRight: 10,
         marginLeft: 8,
     },
@@ -272,6 +291,8 @@ const styles = StyleSheet.create({
     },
     totalText: {
         flex: 10,
+        justifyContent: "center",
+        bottom: 5
     },
     cancelText: {
         color: "red",
@@ -295,4 +316,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default React.memo(CreateTask);
+export default CreateTask;

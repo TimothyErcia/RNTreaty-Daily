@@ -7,7 +7,7 @@ import { TaskGroupProps } from "../props/TaskGroupProps";
 function TaskGroup(taskGroupProp: TaskGroupProps) {
     const [bgColor, setBGColor] = useState("");
     useLayoutEffect(() => {
-        setBGColor(taskGroupProp.backgroundColor);
+        setBGColor(taskGroupProp.task.backgroundColor);
     }, []);
 
     return (
@@ -15,18 +15,18 @@ function TaskGroup(taskGroupProp: TaskGroupProps) {
             <View style={[styles.flexRow, styles.innerContainer]}>
                 <View style={styles.textColumn}>
                     <Text style={styles.categoryStyle}>
-                        {taskGroupProp.category}
+                        {taskGroupProp.task.category}
                     </Text>
                     <Pressable onPress={taskGroupProp.onUpdatePrice}>
                         <Text style={styles.priceStyle}>
-                            $ {taskGroupProp.totalPrice}
+                            $ {taskGroupProp.task.price}
                         </Text>
                     </Pressable>
                     <Text style={styles.dateStyle}>
                         Last added date:{" "}
-                        {new Date(taskGroupProp.lastUpdateDate).toLocaleDateString("en-US")}{" "}
+                        {new Date(taskGroupProp.task.dateAdded).toLocaleDateString("en-US")}{" "}
                         <Text style={{ fontWeight: "bold" }}>
-                            $ {taskGroupProp.lastPrice}
+                            $ {taskGroupProp.task.lastPrice}
                         </Text>
                     </Text>
                 </View>

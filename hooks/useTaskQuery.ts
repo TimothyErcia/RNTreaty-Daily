@@ -9,9 +9,10 @@ export type TaskQuery = {
   deleteAllTaskObject: () => void;
   deleteById: (id: string) => void;
   getAllTask: () => Task[];
+  getTaskByCategory: (category: string) => Task;
   getTotalSum: () => number;
   getTotalSumByCategory: (category: string) => number;
-  getTaskObjectByCategory: (category: string) => Task;
+  getAllCategory: () => string[];
   getHistoryByCategory: (category: string) => Task[];
 };
 
@@ -85,21 +86,20 @@ function useTaskQuery(): TaskQuery {
 
   function getTotalSumByCategory(category: string): number {
     const categoryData = task.filtered("category = $0", category);
-    categoryData.at(categoryData.length - 1)!.toJSON() as Task;
-    if (categoryData.length < 1) {
+    if (categoryData && categoryData.length === 0) {
       return 0;
     }
 
+    categoryData.at(categoryData.length - 1)!.toJSON() as Task;
     return categoryData.sum("price");
-  }
-
-  function getTaskObjectByCategory(category: string): Task {
-    const categoryData = task.filtered("category = $0", category);
-    return categoryData.at(categoryData.length - 1)!.toJSON() as Task;
   }
 
   function getHistoryByCategory(category: string): Task[] {
     const categoryData = task.filtered("category = $0", category);
+    if (categoryData.length === 0) {
+      return [];
+    }
+
     return categoryData.toJSON() as Task[];
   }
 
@@ -108,6 +108,20 @@ function useTaskQuery(): TaskQuery {
       const taskById = realm.objectForPrimaryKey("TaskObject", id);
       realm.delete(taskById);
     });
+  }
+
+  function getTaskByCategory(category: string): Task {
+    const categoryData = task.filtered("category = $0", category);
+    if (categoryData.length === 0) {
+      throw new Error("Category not found");
+    }
+
+    return categoryData.at(categoryData.length - 1)!.toJSON() as Task;
+  }
+
+  //TODO: to add when categories are coming from DB
+  function getAllCategory(): string[] {
+    return [];
   }
 
   return {
@@ -119,8 +133,9 @@ function useTaskQuery(): TaskQuery {
     getAllTask,
     getTotalSum,
     getTotalSumByCategory,
-    getTaskObjectByCategory,
     getHistoryByCategory,
+    getAllCategory,
+    getTaskByCategory,
   };
 }
 
