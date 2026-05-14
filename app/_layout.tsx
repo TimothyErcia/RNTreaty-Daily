@@ -1,4 +1,4 @@
-import DrawerLayout from "@/components/DrawerLayout";
+import DrawerLayout from "@/components/pages/DrawerLayout";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { NotificationObject } from "@/model/NotificationObject";
 import { TaskObject } from "@/model/TaskObject";

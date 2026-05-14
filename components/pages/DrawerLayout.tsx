@@ -13,13 +13,12 @@ import {
     Text,
     View
 } from "react-native";
-import TimeView from "./ui/TimeView";
+import { Images } from "../../assets";
+import TimeView from "../ui/TimeView";
 
 function DrawerLayout() {
     const [toggleState, setToggleState] = useState(false);
-    const [iconState, setIconState] = useState(
-        require("../assets/images/icon_toggle_off.png")
-    );
+    const [iconState, setIconState] = useState(Images.toggle_off);
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
     const notificationQuery: INotificationQuery = useNotificationQuery();
@@ -66,8 +65,8 @@ function DrawerLayout() {
                     onPress={() => {
                         setToggleState(!toggleState);
                         const icon = toggleState
-                            ? require("../assets/images/icon_toggle_on.png")
-                            : require("../assets/images/icon_toggle_off.png");
+                            ? Images.toggle_on
+                            : Images.toggle_off
                         setIconState(icon);
                     }}
                 >

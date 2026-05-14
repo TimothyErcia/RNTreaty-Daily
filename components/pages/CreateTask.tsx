@@ -16,10 +16,10 @@ import {
     View
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
-import { CreateTaskProp } from "./props/CreateTaskProp";
-import * as state from "./states/TaskState";
-import { useTaskStore } from "./states/TaskState";
-import HistoryItem from "./ui/HistoryItem";
+import { CreateTaskProp } from "../props/CreateTaskProp";
+import * as state from "../states/TaskState";
+import { useTaskStore } from "../states/TaskState";
+import HistoryItem from "../ui/HistoryItem";
 
 function CreateTask(props: CreateTaskProp): React.JSX.Element {
     // Task State
@@ -124,7 +124,7 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
         taskStore.updateId(historyList.at(0)?._id ?? "")
         taskStore.updateCategory(categoryInfo.value);
         taskStore.updateBackgroundColor(categoryInfo.color);
-        taskStore.updateLastPrice(categoryTotalValue);
+        taskStore.updateLastPrice(historyList.at(historyList.length - 1)?.price ?? 0);
     }
 
     return (

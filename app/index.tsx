@@ -1,18 +1,24 @@
 import { StatusBar } from "expo-status-bar";
 
-import CreateTask from "@/components/CreateTask";
+import CreateTask from "@/components/pages/CreateTask";
+import TaskList from "@/components/pages/TaskList";
 import { useTaskStore } from "@/components/states/TaskState";
-import TaskList from "@/components/TaskList";
 import Bottom from "@/components/ui/Bottom";
 import Header from "@/components/ui/Header";
 import { Colors } from "@/constants/Colors";
-import React, { useState } from "react";
+import useNotification from "@/hooks/useNotification";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native";
 
 export default function Layout() {
     const { updateCategory } = useTaskStore();
     const [isModalShown, setIsModalShown] = useState(false);
     const [isUpdateCategory, setUpdate] = useState(false);
+    const { scheduleNotification } = useNotification();
+
+    useEffect(() => {
+        scheduleNotification();
+    }, []);
 
     return (
         <>
