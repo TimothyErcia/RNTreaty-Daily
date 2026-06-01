@@ -9,54 +9,60 @@ import { Colors } from "@/constants/Colors";
 import useNotification from "@/hooks/useNotification";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native";
+import useNotificationQuery from "@/hooks/useNotificationQuery";
 
 export default function Layout() {
-    const { updateCategory } = useTaskStore();
-    const [isModalShown, setIsModalShown] = useState(false);
-    const [isUpdateCategory, setUpdate] = useState(false);
-    const { scheduleNotification } = useNotification();
+  const { updateCategory } = useTaskStore();
+  const [isModalShown, setIsModalShown] = useState(false);
+  const [isUpdateCategory, setUpdate] = useState(false);
+  const { scheduleNotification } = useNotification();
 
-    useEffect(() => {
-        scheduleNotification();
-    }, []);
+  const notifQuery = useNotificationQuery();
+  const hasNotificationSet = notifQuery.hasNotificationSet();
 
-    return (
-        <>
-            <StatusBar style="auto" />
-            <SafeAreaView
-                style={{
-                    flex: 1,
-                    backgroundColor: Colors.light.background,
-                }}
-            >
-                <Header />
-                <TaskList
-                    onCategoryAdd={() => {
-                        setIsModalShown(true);
-                    }}
-                    onCetegoryDelete={(value) => {
-                        console.log(`${value} has been deleted`);
-                    }}
-                    onCategoryUpdate={() => {
-                        setIsModalShown(true);
-                        setUpdate(true)
-                    }}
-                />
-                <Bottom
-                    onAddTaskGroup={() => {
-                        setIsModalShown(true)
-                        updateCategory("");
-                    }}
-                />
-                <CreateTask
-                    isVisible={isModalShown}
-                    isUpdate={isUpdateCategory}
-                    onDismiss={() => {
-                        setIsModalShown(false);
-                        setUpdate(false);
-                    }}
-                />
-            </SafeAreaView>
-        </>
-    );
+  useEffect(() => {
+    if (!hasNotificationSet) {
+      scheduleNotification();
+    }
+  }, []);
+
+  return (
+    <>
+      <StatusBar style="auto" />
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: Colors.light.background,
+        }}
+      >
+        <Header />
+        <TaskList
+          onCategoryAdd={() => {
+            setIsModalShown(true);
+          }}
+          onCetegoryDelete={(value) => {
+            console.log(`${value} has been deleted`);
+          }}
+          onCategoryUpdate={() => {
+            setIsModalShown(true);
+            setUpdate(true);
+          }}
+        />
+        <Bottom
+          onAddTaskGroup={() => {
+            setIsModalShown(true);
+            updateCategory("");
+          }}
+        />
+        <CreateTask
+          isVisible={isModalShown}
+          isUpdate={isUpdateCategory}
+          onDismiss={() => {
+            setIsModalShown(false);
+            setUpdate(false);
+          }}
+        />
+      </SafeAreaView>
+    </>
+  );
 }

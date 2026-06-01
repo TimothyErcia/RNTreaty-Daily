@@ -1,43 +1,33 @@
 import { Notification, NotificationObject } from "@/model/NotificationObject";
 import { useQuery, useRealm } from "@realm/react";
 
-export type INotificationQuery = {
-    getNotification: () => Notification | undefined;
-    createOrUpdateTime: (date: Date, notification?: Notification) => void;
+export type NotificationQuery = {
+  hasNotificationSet: () => boolean;
 };
 
-function useNotificationQuery(): INotificationQuery {
-    const realm = useRealm();
-    const notificationObject = useQuery(NotificationObject);
+function useNotificationQuery(): NotificationQuery {
+  const realm = useRealm();
+  const notificationObject = useQuery(NotificationObject);
 
-    function getNotification(): Notification | undefined {
-        if (notificationObject.length === 0) {
-            return undefined;
-        }
-        const notification = notificationObject.at(0)!.toJSON() as Notification;
-        return notification;
+  function hasNotificationSet(): boolean {
+    if (notificationObject && notificationObject.length === 0) {
+      realm.write(() => {
+        realm.create("NotificationObject", NotificationObject.generate({
+          hasNotificationSet: true
+        }));
+      });
+    } else if (notificationObject && notificationObject.length > 0) {
+      const notification = notificationObject.at(0)!.toJSON() as Notification;
+
+      return notification.hasNotificationSet;
     }
 
-    function createOrUpdateTime(newDate: Date, notification?: Notification) {
-        realm.write(() => {
-            if (notification) {
-                const notificationObj = realm.objectForPrimaryKey('NotificationObject', notification._id);
-                if (notificationObj) {
-                    notificationObj.dateOfTrigger = newDate;
-                }
-            } else {
-                realm.create(
-                    "NotificationObject",
-                    NotificationObject.generate({ dateOfTrigger: newDate }),
-                );
-            }
-        });
-    }
+    return false;
+  }
 
-    return {
-        getNotification,
-        createOrUpdateTime,
-    };
+  return {
+    hasNotificationSet,
+  };
 }
 
 export default useNotificationQuery;
