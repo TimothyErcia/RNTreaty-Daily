@@ -1,5 +1,4 @@
 import * as Notification from "expo-notifications";
-import { useEffect } from "react";
 import { Platform } from "react-native";
 
 function useNotification() {
@@ -15,7 +14,7 @@ function useNotification() {
     },
   });
 
-  const CHANNEL_ID = "default";
+  const CHANNEL_ID = "TreatyDailyChannel";
 
   //Request Permission for Notification
   const requestPermissions = async () => {
@@ -26,15 +25,11 @@ function useNotification() {
 
     if (Platform.OS === "android") {
       await Notification.setNotificationChannelAsync(CHANNEL_ID, {
-        name: "default",
+        name: "TreatyDaily",
         importance: Notification.AndroidImportance.MAX,
       });
     }
   };
-
-  useEffect(() => {
-    requestPermissions();
-  }, []);
 
   // Trigger Properties
   const reminderDate = new Date();
@@ -43,7 +38,7 @@ function useNotification() {
   const triggerInput: Notification.NotificationTriggerInput = {
     type: Notification.SchedulableTriggerInputTypes.CALENDAR,
     channelId: CHANNEL_ID,
-    repeats: false,
+    repeats: true,
     year: reminderDate.getFullYear(),
     month: reminderDate.getMonth() + 1,
     day: reminderDate.getDate(),
@@ -57,7 +52,6 @@ function useNotification() {
       content: {
         title: "Application Expiration",
         body: "Application needs to be renewed by tomorrow",
-        data: { data: "goes here" },
       },
       trigger: triggerInput,
     });

@@ -6,25 +6,25 @@ import { useTaskStore } from "@/components/states/TaskState";
 import Bottom from "@/components/ui/Bottom";
 import Header from "@/components/ui/Header";
 import { Colors } from "@/constants/Colors";
-import useNotification from "@/hooks/useNotification";
-import React, { useEffect, useState } from "react";
+//import useNotification from "@/hooks/useNotification";
+import React, { useState } from "react";
 import { SafeAreaView } from "react-native";
-import useNotificationQuery from "@/hooks/useNotificationQuery";
+//import useNotificationQuery from "@/hooks/useNotificationQuery";
 
 export default function Layout() {
   const { updateCategory } = useTaskStore();
   const [isModalShown, setIsModalShown] = useState(false);
   const [isUpdateCategory, setUpdate] = useState(false);
-  const { scheduleNotification } = useNotification();
-
-  const notifQuery = useNotificationQuery();
-  const hasNotificationSet = notifQuery.hasNotificationSet();
-
-  useEffect(() => {
-    if (!hasNotificationSet) {
-      scheduleNotification();
-    }
-  }, []);
+  // const { scheduleNotification } = useNotification();
+  //
+  // const notifQuery = useNotificationQuery();
+  // const hasNotificationSet = notifQuery.hasNotificationSet();
+  //
+  // useEffect(() => {
+  //   if (!hasNotificationSet) {
+  //     scheduleNotification();
+  //   }
+  // }, []);
 
   return (
     <>

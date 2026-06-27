@@ -5,97 +5,101 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { TaskGroupProps } from "../props/TaskGroupProps";
 
 function TaskGroup(taskGroupProp: TaskGroupProps) {
-    const [bgColor, setBGColor] = useState("");
-    useLayoutEffect(() => {
-        setBGColor(taskGroupProp.task.backgroundColor);
-    }, []);
+  const [bgColor, setBGColor] = useState("");
+  useLayoutEffect(() => {
+    setBGColor(taskGroupProp.task.backgroundColor);
+  }, []);
 
-    return (
-        <View style={[styles.flexColumn, styles.container, { backgroundColor: bgColor }]}>
-            <View style={[styles.flexRow, styles.innerContainer]}>
-                <View style={styles.textColumn}>
-                    <Text style={styles.categoryStyle}>
-                        {taskGroupProp.task.category}
-                    </Text>
-                    <Pressable onPress={taskGroupProp.onUpdatePrice}>
-                        <Text style={styles.priceStyle}>
-                            $ {taskGroupProp.task.price}
-                        </Text>
-                    </Pressable>
-                    <Text style={styles.dateStyle}>
-                        Last added date:{" "}
-                        {new Date(taskGroupProp.task.dateAdded).toLocaleDateString("en-US")}{" "}
-                        <Text style={{ fontWeight: "bold" }}>
-                            $ {taskGroupProp.task.lastPrice}
-                        </Text>
-                    </Text>
-                </View>
-                <View style={styles.iconColumn}>
-                    <View
-                        style={[
-                            styles.flexColumn,
-                            { paddingTop: 10, paddingLeft: 4 },
-                        ]}
-                    >
-                        <Pressable onPress={taskGroupProp.onDeleteTask}>
-                            <Feather name="trash" size={23} color='black' />
-                        </Pressable>
-                    </View>
-                    <View style={{ flex: 0.5 }}>
-                        <Pressable onPress={taskGroupProp.onAddPrice}>
-                            <SimpleLineIcons name="plus" size={23} color="black" />
-                        </Pressable>
-                    </View>
-                </View>
+  return (
+    <View style={[styles.flexColumn, styles.container, { backgroundColor: bgColor }]}>
+      <View style={[styles.flexRow, styles.innerContainer]}>
+        <View style={styles.textColumn}>
+          <Text style={styles.categoryStyle}>
+            {taskGroupProp.task.category}
+          </Text>
+          <Pressable onPress={taskGroupProp.onUpdatePrice}>
+            <View style={{ alignItems: 'baseline' }}>
+              <View>
+                <Text style={styles.priceStyle}>
+                  $ {taskGroupProp.task.price}
+                </Text>
+              </View>
             </View>
+          </Pressable>
+          <Text style={styles.dateStyle}>
+            Last added date:{" "}
+            {new Date(taskGroupProp.task.dateAdded).toLocaleDateString("en-US")}{" "}
+            <Text style={{ fontWeight: "bold" }}>
+              $ {taskGroupProp.task.lastPrice}
+            </Text>
+          </Text>
         </View>
-    );
+        <View style={styles.iconColumn}>
+          <View
+            style={[
+              styles.flexColumn,
+              { paddingTop: 10, paddingLeft: 4 },
+            ]}
+          >
+            <Pressable onPress={taskGroupProp.onDeleteTask}>
+              <Feather name="trash" size={23} color='black' />
+            </Pressable>
+          </View>
+          <View style={{ flex: 0.5 }}>
+            <Pressable onPress={taskGroupProp.onAddPrice}>
+              <SimpleLineIcons name="plus" size={23} color="black" />
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    flexColumn: {
-        flex: 1,
-        flexDirection: "column",
-    },
-    flexRow: {
-        flex: 6,
-        flexDirection: "row",
-    },
-    container: {
-        maxHeight: 120,
-        marginHorizontal: 20,
-        borderRadius: 12,
-    },
-    innerContainer: {
-        maxHeight: 113,
-        marginRight: 8,
-        paddingLeft: 12,
-        borderRadius: 12,
-        backgroundColor: Colors.light.background,
-    },
-    textColumn: {
-        flex: 5,
-        paddingTop: 10,
-        paddingLeft: 5,
-    },
-    iconColumn: {
-        flex: 0.65,
-    },
-    categoryStyle: {
-        fontSize: 15,
-        fontFamily: "inter",
-        marginTop: 5,
-    },
-    dateStyle: {
-        fontSize: 11,
-        fontFamily: "inter",
-        marginTop: -5,
-    },
-    priceStyle: {
-        fontSize: 40,
-        fontFamily: "kufam_regular",
-        marginTop: 5,
-    },
+  flexColumn: {
+    flex: 1,
+    flexDirection: "column",
+  },
+  flexRow: {
+    flex: 6,
+    flexDirection: "row",
+  },
+  container: {
+    maxHeight: 120,
+    marginHorizontal: 20,
+    borderRadius: 12,
+  },
+  innerContainer: {
+    maxHeight: 113,
+    marginRight: 8,
+    paddingLeft: 12,
+    borderRadius: 12,
+    backgroundColor: Colors.light.background,
+  },
+  textColumn: {
+    flex: 5,
+    paddingTop: 10,
+    paddingLeft: 5,
+  },
+  iconColumn: {
+    flex: 0.65,
+  },
+  categoryStyle: {
+    fontSize: 15,
+    fontFamily: "inter",
+    marginTop: 5,
+  },
+  dateStyle: {
+    fontSize: 11,
+    fontFamily: "inter",
+    marginTop: -5,
+  },
+  priceStyle: {
+    fontSize: 40,
+    fontFamily: "kufam_regular",
+    marginTop: 5,
+  },
 });
 
 export default TaskGroup;
