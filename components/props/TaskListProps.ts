@@ -1,5 +1,4 @@
 export type TaskListProps = {
-  onCategoryAdd: () => void;
-  onCetegoryDelete: (value: string) => void;
-  onCategoryUpdate: () => void;
+  onCategoryAction: (isUpdate: boolean) => void;
+  onDeleteResponse: (value: string) => void;
 };

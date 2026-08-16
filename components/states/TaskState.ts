@@ -27,11 +27,10 @@ type TaskState = {
 
 export type TaskStore = TaskState & Action;
 
-export const useTaskStore = create<TaskState & Action>((set) => ({
+export const useTaskStore = create<TaskStore>((set) => ({
   currentTask: initialTasks,
   setCurrentTask: (task: Task) => set({ currentTask: task }),
-  updateId: (id: string) =>
-    set((state) => ({ currentTask: { ...state.currentTask, _id: id } })),
+  updateId: (id: string) => set((state) => ({ currentTask: { ...state.currentTask, _id: id } })),
   updatePrice: (price: number) =>
     set((state) => ({ currentTask: { ...state.currentTask, price } })),
   updateCategory: (category: string) =>
