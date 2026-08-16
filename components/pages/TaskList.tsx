@@ -15,13 +15,13 @@ function TaskList(props: TaskListProps) {
     try {
       return realmTask.getAllTask();
     } catch (error) {
-      console.error('Error getting tasks:', error);
+      console.error("Error getting tasks:", error);
       return [];
     }
   }, [realmTask]);
 
   return (
-    <View style={{ height: '85%' }}>
+    <View style={{ height: "85%" }}>
       <FlatList
         data={tasklist}
         keyExtractor={(item) => item._id}
@@ -30,15 +30,15 @@ function TaskList(props: TaskListProps) {
             <TaskGroup
               task={item}
               onDeleteTask={() => {
-                props.onCetegoryDelete(item.category);
+                props.onDeleteResponse(`${item.category} has been deleted`);
                 realmTask.deleteByCategoryTaskObject(item.category);
               }}
               onAddPrice={() => {
-                props.onCategoryAdd();
+                props.onCategoryAction(false);
                 setCurrentTask(item);
               }}
               onUpdatePrice={() => {
-                props.onCategoryUpdate();
+                props.onCategoryAction(true);
                 setCurrentTask(item);
               }}
             ></TaskGroup>
@@ -49,4 +49,4 @@ function TaskList(props: TaskListProps) {
   );
 }
 
-export default TaskList
+export default TaskList;

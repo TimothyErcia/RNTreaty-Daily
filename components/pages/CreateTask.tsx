@@ -13,10 +13,10 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View
+  View,
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
-import { CreateTaskProp } from "../props/CreateTaskProp";
+import { ACTIONRESPONSE, CreateTaskProp } from "../props/CreateTaskProp";
 import * as state from "../states/TaskState";
 import { useTaskStore } from "../states/TaskState";
 import HistoryItem from "../ui/HistoryItem";
@@ -48,10 +48,11 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
     try {
       return realmTask.getTotalSumByCategory(taskStore.currentTask.category);
     } catch (error) {
-      console.error('Error getting tasks:', error);
+      console.error("Error getting tasks:", error);
+      onDismiss(ACTIONRESPONSE.ERROR);
       return 0;
     }
-  }, [taskStore.currentTask.category, realmTask])
+  }, [taskStore.currentTask.category, realmTask]);
 
   /**
    * History List will always dispatch on category change
@@ -62,7 +63,8 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
     try {
       return realmTask.getHistoryByCategory(taskStore.currentTask.category);
     } catch (error) {
-      console.error('Error getting tasks:', error);
+      console.error("Error getting tasks:", error);
+      onDismiss(ACTIONRESPONSE.ERROR);
       return [];
     }
   }, [taskStore.currentTask.category, realmTask]);
@@ -71,28 +73,29 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
     setCategory(taskStore.currentTask.category);
   }, [taskStore.currentTask]);
 
-  function onDismiss() {
+  function onDismiss(actionResponse: ACTIONRESPONSE) {
     taskStore.resetCurrentTask();
     inputRef.current?.clear();
     setAdditionalValue(0);
-    props.onDismiss();
+    props.onDismiss(actionResponse);
   }
 
   function onAddUpdate() {
     if (taskStore.currentTask.price === 0) return;
 
-    const createdTask: Omit<Task, '_id'> = taskStore.currentTask;
-    console.log('createdTask', createdTask);
+    const createdTask: Omit<Task, "_id"> = taskStore.currentTask;
     try {
       if (props.isUpdate) {
         realmTask.updateTaskObject(taskStore.currentTask.price, taskStore.currentTask);
+        onDismiss(ACTIONRESPONSE.UPDATED);
       } else {
         realmTask.writeTaskObject(createdTask);
+        onDismiss(ACTIONRESPONSE.CREATED);
       }
     } catch (error) {
-      console.error('Error adding task:', error);
+      console.error("Error adding task:", error);
+      onDismiss(ACTIONRESPONSE.ERROR);
     }
-    onDismiss();
   }
 
   function onAddAdditional() {
@@ -113,16 +116,14 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
       return;
     }
 
-    const categoryInfo = CATEGORIES.find(
-      (category) => category.value === selectedCategory
-    );
+    const categoryInfo = CATEGORIES.find((category) => category.value === selectedCategory);
 
     if (!categoryInfo) {
       return;
     }
 
     taskStore.resetCurrentTask();
-    taskStore.updateId(historyList.at(0)?._id ?? "")
+    taskStore.updateId(historyList.at(0)?._id ?? "");
     taskStore.updateCategory(categoryInfo.value);
     taskStore.updateBackgroundColor(categoryInfo.color);
     taskStore.updateLastPrice(historyList.at(historyList.length - 1)?.price ?? 0);
@@ -133,15 +134,14 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
       animationType="fade"
       transparent={true}
       visible={props.isVisible}
-      onDismiss={onDismiss}
+      onDismiss={() => onDismiss(ACTIONRESPONSE.UNDEFINED)}
     >
-      <Pressable onPress={onDismiss}>
+      <Pressable onPress={() => onDismiss(ACTIONRESPONSE.UNDEFINED)}>
         <View style={styles.backdrop}></View>
       </Pressable>
       <View style={styles.container}>
         <KeyboardAvoidingView behavior="padding">
           <View style={styles.modalView}>
-
             {/* Category Dropdown */}
             <View style={styles.dropdownContainer}>
               <DropDownPicker
@@ -163,17 +163,22 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
               keyboardType="numeric"
               ref={inputRef}
               onChangeText={(text) => {
-                inputValueRef.current = Number(text)
+                inputValueRef.current = Number(text);
                 //debounce
                 setTimeout(() => {
                   const value = Number(text);
                   taskStore.updatePrice(value);
                   taskStore.updateLastPrice(value);
-                }, 300)
+                }, 300);
               }}
             />
             <Pressable onPress={onAddAdditional}>
-              <SimpleLineIcons name="plus" size={24} color="black" style={styles.additionalIconStyle} />
+              <SimpleLineIcons
+                name="plus"
+                size={24}
+                color="black"
+                style={styles.additionalIconStyle}
+              />
             </Pressable>
 
             {/* History List */}
@@ -187,7 +192,7 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
                     id={item._id}
                     date={item.dateAdded.toString()}
                     price={item.price}
-                    onEdit={() => { }}
+                    onEdit={() => {}}
                   />
                 )}
               />
@@ -204,16 +209,12 @@ function CreateTask(props: CreateTaskProp): React.JSX.Element {
               </Pressable>
             </View>
             <View style={styles.bottomSubLayoutStyle}>
-              <Pressable onPress={onDismiss}>
+              <Pressable onPress={() => onDismiss(ACTIONRESPONSE.UNDEFINED)}>
                 <Text style={styles.cancelText}>Cancel</Text>
               </Pressable>
               <Pressable onPress={onAddUpdate} style={styles.actionButton}>
-                {(!props.isUpdate && <Text style={styles.addText}>
-                  Add
-                </Text>)}
-                {(props.isUpdate && <Text style={styles.updateText}>
-                  Update
-                </Text>)}
+                {!props.isUpdate && <Text style={styles.addText}>Add</Text>}
+                {props.isUpdate && <Text style={styles.updateText}>Update</Text>}
               </Pressable>
             </View>
           </View>
@@ -227,7 +228,7 @@ const styles = StyleSheet.create({
   backdrop: {
     width: Dimensions.get("screen").width,
     height: Dimensions.get("screen").height,
-    position: 'absolute',
+    position: "absolute",
     backgroundColor: Colors.bottom.background,
     opacity: Colors.bottom.opacity,
   },
@@ -243,7 +244,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     height: 400,
-    width: 280
+    width: 280,
   },
   dropdownContainer: {
     width: 225,
@@ -263,7 +264,7 @@ const styles = StyleSheet.create({
   historyTitle: {
     marginTop: 8,
     fontSize: 16,
-    color: '#222222',
+    color: "#222222",
   },
   textInputStyle: {
     borderWidth: 1,
@@ -294,7 +295,7 @@ const styles = StyleSheet.create({
   totalText: {
     flex: 10,
     justifyContent: "center",
-    bottom: 5
+    bottom: 5,
   },
   cancelText: {
     color: "red",
@@ -311,11 +312,11 @@ const styles = StyleSheet.create({
     color: "orange",
   },
   historyContainer: {
-    width: 'auto',
+    width: "auto",
     marginHorizontal: 5,
     height: 148,
     maxHeight: 148,
-  }
+  },
 });
 
 export default CreateTask;
