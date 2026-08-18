@@ -2,11 +2,10 @@ import DrawerLayout from "@/components/pages/DrawerLayout";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { NotificationObject } from "@/model/NotificationObject";
 import { TaskObject } from "@/model/TaskObject";
-import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import { DarkTheme, DefaultTheme, ThemeProvider } from "expo-router";
 import { RealmProvider } from "@realm/react";
 import { useFonts } from "expo-font";
 import { Drawer } from "expo-router/drawer";
-import React from 'react';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 function Layout() {
@@ -27,28 +26,27 @@ function Layout() {
   // }
 
   function DrawerContent() {
-    return <DrawerLayout />
+    return <DrawerLayout />;
   }
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <GestureHandlerRootView>
-        <RealmProvider
-          schema={[NotificationObject, TaskObject]}
-          schemaVersion={1}>
+        <RealmProvider schema={[NotificationObject, TaskObject]} schemaVersion={1}>
           {/* onMigration={onMigrationCheck}> */}
-          <Drawer drawerContent={DrawerContent}
+          <Drawer
+            drawerContent={DrawerContent}
             screenOptions={{
               headerShown: false,
               drawerStyle: {
-                width: 275
-              }
-            }}>
-          </Drawer>
+                width: 275,
+              },
+            }}
+          ></Drawer>
         </RealmProvider>
       </GestureHandlerRootView>
     </ThemeProvider>
-  )
+  );
 }
 
 export default Layout;
